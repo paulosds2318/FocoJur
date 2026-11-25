@@ -43,6 +43,9 @@ test('triagem: cadastro pelo número, revisão e confirmação criam o processo'
   // classificar já pode gerar a tarefa com prazo, sem IA
   await page.fill('input[name=taskTitle]', 'Contestação e2e');
   await page.fill('input[name=taskDue]', '2030-03-15');
+  await page.fill('input[name=taskInternalDue]', '2030-03-12'); // mesmos campos do alerta: prazo interno, tipo, vários responsáveis e "calcular dias"
+  await expect(page.locator('select[name=taskDayCount]')).toBeVisible();
+  await expect(page.getByRole('group', { name: /Responsáveis/ })).toBeVisible();
   await page.click('button:has-text("Confirmar e criar processo")');
   await page.waitForURL(/\/processos\/[0-9a-f-]{36}/);
   await expect(page.getByRole('heading', { level: 1 })).toContainText(number);

@@ -10,16 +10,20 @@ import { ingestMovement } from './movements';
 /**
  * Tudo que o DJEN traz já é processo em andamento: entra direto em Processos (cadastro mínimo, a completar) com o monitoramento
  * ligado. As publicações que trouxeram o processo ficam no histórico dele, já lidas; só as atualizações seguintes viram alerta.
- * Quando o nome da parte difere do cadastrado (possível homônimo), o processo entra igual, com o aviso na ficha para conferir.
- * Desligue com DJEN_AUTO_REGISTER=false para mandar o que vem do DJEN à Triagem.
+ * Exceção: quando o nome da parte difere do cadastrado (possível homônimo, "Conferir parte"), o item NÃO vira processo sozinho: vai
+ * à Triagem para uma advogada confirmar que é da Foco ou descartar (`hasPartDoubt`).
+ * Desligue com DJEN_AUTO_REGISTER=false para mandar tudo o que vem do DJEN à Triagem.
  */
 export const autoRegisterEnabled = () => (process.env.DJEN_AUTO_REGISTER ?? 'true') !== 'false';
+
+/** O conector marcou dúvida sobre a parte (nome diferente do cadastrado): decisão humana na Triagem, antes de virar processo. */
+export const hasPartDoubt = (input: InboxItemInput) => ((input.parsed ?? {}) as { obtainedBy?: string }).obtainedBy?.startsWith('Conferir parte') === true;
 
 export async function registerOngoingCase(input: InboxItemInput, actorId: string | null = null) {
   const number = normalizeCaseNumber(input.caseNumber);
   const parsed = (input.parsed ?? {}) as { portfolio?: 'civil' | 'labor' | 'procon'; state?: string; court?: string; plaintiff?: string; obtainedBy?: string };
   const portfolio = parsed.portfolio ?? 'civil';
-  // dúvida de parte vira aviso na ficha (a conferência acontece ali, sem fila separada)
+  // só chega aqui com dúvida de parte quando a conversão é feita de propósito (ex.: depois de confirmada na Triagem); fica o aviso na ficha
   const doubt = parsed.obtainedBy?.startsWith('Conferir parte') ? parsed.obtainedBy : null;
 
   let [c] = await db.select({ id: cases.id }).from(cases).where(and(eq(cases.number, number), eq(cases.portfolio, portfolio), isNull(cases.deletedAt))).limit(1);

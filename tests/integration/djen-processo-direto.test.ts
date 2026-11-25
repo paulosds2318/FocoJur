@@ -83,17 +83,17 @@ describe('DJEN: processo entra direto em Processos', () => {
     expect(await db.select().from(cases).where(eq(cases.number, num(1, '8')))).toHaveLength(1);
   });
 
-  it('parte duvidosa também entra em Processos, com o aviso para conferir na ficha', async () => {
+  it('parte duvidosa NÃO vira processo sozinha: vai à Triagem para uma advogada confirmar', async () => {
     const { runConnector } = await import('@/lib/connectors/runner');
     const { djen } = await import('@/lib/connectors/djen');
     const { db } = await import('@/db');
     const { cases } = await import('@/db/schema/case');
     const { inboxItem } = await import('@/db/schema/inbox');
     await runConnector(djen, { fetchFn: fetchOf([pub('dd-5', num(3), 'FOCO TESTEDJ COMERCIO DE PECAS LTDA')]), enrich: false, termFilter: (t) => t.term === TERM });
-    const [c] = await db.select().from(cases).where(eq(cases.number, num(3)));
-    expect(c).toBeTruthy();
-    expect(c.details).toMatch(/^Conferir parte/);
-    expect(await db.select().from(inboxItem).where(eq(inboxItem.caseNumber, num(3)))).toHaveLength(0);
+    expect(await db.select().from(cases).where(eq(cases.number, num(3)))).toHaveLength(0);
+    const box = await db.select().from(inboxItem).where(eq(inboxItem.caseNumber, num(3)));
+    expect(box).toHaveLength(1);
+    expect((box[0].parsed as { obtainedBy: string }).obtainedBy).toMatch(/^Conferir parte/);
   });
 
   it('com DJEN_AUTO_REGISTER=false tudo vai para a Triagem, como antes', async () => {

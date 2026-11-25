@@ -18,6 +18,16 @@ async function limpa() {
   await db.delete(monitoredTerm).where(eq(monitoredTerm.term, '99999/ZZ'));
   await db.delete(nameDecision).where(like(nameDecision.displayName, 'FOCO ALUGUEL TESTEMON%'));
   await db.delete(inboxItem).where(like(inboxItem.caseNumber, '9996%'));
+  // a aprovação de uma variação cria o processo do item (cadastro mínimo); remove o que o teste gerou
+  const { cases, caseCivil, caseParty } = await import('@/db/schema/case');
+  const { auditLog } = await import('@/db/schema');
+  const criados = await db.select({ id: cases.id }).from(cases).where(like(cases.number, '9996%'));
+  for (const c of criados) {
+    await db.delete(auditLog).where(eq(auditLog.entityId, c.id));
+    await db.delete(caseParty).where(eq(caseParty.caseId, c.id));
+    await db.delete(caseCivil).where(eq(caseCivil.caseId, c.id));
+  }
+  await db.delete(cases).where(like(cases.number, '9996%'));
 }
 
 beforeAll(async () => {
@@ -120,8 +130,10 @@ describe('variações do nome da empresa', () => {
     expect(t?.kind).toBe('name');
     expect(t?.document).toBeTruthy(); // herdou o CNPJ de conferência
     const [a] = await db.select().from(inboxItem).where(eq(inboxItem.id, i1));
-    expect(a.status).toBe('new');
+    expect(a.status).toBe('confirmed'); // sem mais dúvida, o item do DJEN já virou processo em andamento
     expect((a.parsed as { nameVariation?: string }).nameVariation).toBeUndefined();
+    const { cases } = await import('@/db/schema/case');
+    expect(await db.select().from(cases).where(eq(cases.number, '99960000000000000001'))).toHaveLength(1);
 
     expect(await decideVariation(adminId, rejeitada, 'rejected')).toMatchObject({ ok: true });
     const [b] = await db.select().from(inboxItem).where(eq(inboxItem.id, i2));

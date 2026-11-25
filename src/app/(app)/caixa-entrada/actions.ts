@@ -5,6 +5,8 @@ import { redirect } from 'next/navigation';
 import type { ActionState } from '@/components/action-form';
 import { requireRole } from '@/lib/auth/session';
 import { decideSuggestions, suggestForItem } from '@/server/inbox-ai';
+import { computeDueDate } from '@/server/movements';
+import { todayInSaoPaulo } from '@/lib/deadlines';
 import { createTask } from '@/server/tasks';
 import { addInboxItem, confirmInboxItem, discardInboxItem, importProjurisFile, markInboxDuplicate } from '@/server/inbox';
 
@@ -42,9 +44,16 @@ export async function confirmAction(_: ActionState, formData: FormData): Promise
   revalidatePath('/caixa-entrada');
   revalidatePath('/triagem');
   const f = str(formData);
-  if (f.taskTitle?.trim() || f.taskDue?.trim()) {
+  if (f.taskTitle?.trim() || f.taskDue?.trim() || f.taskDays?.trim()) {
     // o processo já foi criado; se a tarefa falhar, a classificação não se perde (a tarefa se cria na ficha)
-    await createTask(s.user.id, { title: f.taskTitle ?? '', caseId: res.caseId, typeId: '', dueDate: f.taskDue ?? '', dueTime: '', ownerId: f.taskOwnerId ?? '', reviewerId: '' });
+    let due = (f.taskDue ?? '').trim();
+    const days = Number(f.taskDays);
+    if (f.taskDays?.trim() && Number.isInteger(days) && days >= 1 && days <= 365) {
+      due = await computeDueDate(todayInSaoPaulo(), days, f.taskDayCount === 'calendar' ? 'calendar' : 'business', { state: f.state || null, city: f.city || null, court: f.court || null });
+    }
+    await createTask(s.user.id, {
+      title: f.taskTitle ?? '', caseId: res.caseId, typeId: f.taskTypeId ?? '', dueDate: due, internalDueDate: f.taskInternalDue ?? '', dueTime: '', ownerId: '', reviewerId: '', assigneeIds: f.taskAssigneeIds ?? '',
+    });
     revalidatePath('/tarefas');
     redirect(`/processos/${res.caseId}?tab=tarefas`);
   }

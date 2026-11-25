@@ -1,4 +1,5 @@
 import { eq, inArray, sql } from 'drizzle-orm';
+import { autoRegisterEnabled, registerOngoingCase } from './auto-register';
 import { db } from '@/db';
 import { inboxItem, monitoredTerm, nameDecision } from '@/db/schema/inbox';
 import { audit } from '@/lib/audit';
@@ -74,10 +75,12 @@ export async function decideVariation(actorId: string, nameRaw: string, decision
     if (decision === 'rejected') {
       await db.update(inboxItem).set({ status: 'discarded', reviewedBy: actorId }).where(eq(inboxItem.id, it.id));
     } else {
-      await db
-        .update(inboxItem)
-        .set({ parsed: { ...p, nameVariation: undefined, obtainedBy: `Publicação do DJEN (variação do nome aprovada: "${p.nameVariation}")` } })
-        .where(eq(inboxItem.id, it.id));
+      const parsed = { ...p, nameVariation: undefined, obtainedBy: `Publicação do DJEN (variação do nome aprovada: "${p.nameVariation}")` };
+      await db.update(inboxItem).set({ parsed }).where(eq(inboxItem.id, it.id));
+      // sem mais dúvida, o que vem do DJEN já é processo em andamento: entra direto em Processos
+      if (it.source === 'djen_term' && autoRegisterEnabled()) {
+        await registerOngoingCase({ source: 'djen_term', caseNumber: it.caseNumber ?? '', externalId: it.externalId ?? '', parsed, payload: it.payload }, actorId);
+      }
     }
   }
   return { ok: true as const, affected, termId };

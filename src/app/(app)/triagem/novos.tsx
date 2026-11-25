@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { ActionForm } from '@/components/action-form';
 import { INBOX_PF, INBOX_SIT, INBOX_SRC, InboxItemInfo } from '@/components/inbox-item-info';
+import { AssigneePicker } from '@/components/assignee-picker';
 import { Pager } from '@/components/pager';
 import { SelectHint } from '@/components/select-hint';
 import { formatCaseNumber } from '@/lib/case-number';
@@ -20,7 +21,7 @@ export async function NovosProcessos({ itemId, page, canWrite, userId, href }: {
   itemId: string; page: number; canWrite: boolean; userId: string; href: (o: { item?: string; np?: string }) => string;
 }) {
   const [data, lk, owners, selRaw] = await Promise.all([
-    listInbox('all', { page }), getLookups(['system', 'subject', 'claim', 'court_type']), ownersForReview(), itemId ? getInboxItem(itemId) : null,
+    listInbox('all', { page }), getLookups(['system', 'subject', 'claim', 'court_type', 'task_type']), ownersForReview(), itemId ? getInboxItem(itemId) : null,
   ]);
   const sel = selRaw && OPEN.includes(selRaw.status) ? selRaw : null;
   const lastFetch = selRaw?.caseNumber ? await lastPortalFetch(selRaw.caseNumber) : null;
@@ -126,10 +127,16 @@ export async function NovosProcessos({ itemId, page, canWrite, userId, href }: {
                   <label className="flex flex-col gap-1"><span className="label">Loja</span><input className="input" name="costCenter" defaultValue={p.costCenter ?? ''} /></label>
                   <fieldset className="col-span-2 grid grid-cols-2 gap-3 rounded-control bg-bg p-3">
                     <legend className="label px-1">Já criar uma tarefa com prazo (opcional)</legend>
-                    <label className="col-span-2 flex flex-col gap-1"><span className="label">Título da tarefa</span><input className="input" name="taskTitle" placeholder="Ex.: Contestação" /></label>
-                    <label className="flex flex-col gap-1"><span className="label">Prazo (data)</span><input className="input" type="date" name="taskDue" /></label>
-                    <label className="flex flex-col gap-1"><span className="label">Responsável da tarefa</span>
-                      <select className="input" name="taskOwnerId" defaultValue=""><option value="">Sem responsável</option>{owners.map((o) => <option key={o.id} value={o.id}>{o.name}</option>)}</select></label>
+                    <label className="col-span-2 flex flex-col gap-1"><span className="label">Título</span><input className="input" name="taskTitle" placeholder="Ex.: Contestação" /></label>
+                    <div className="col-span-2"><SelectHint name="taskTypeId" label="Tipo" options={lk.task_type} hintPrefix="Dica do tipo: " /></div>
+                    <div className="col-span-2 grid"><AssigneePicker options={owners.map((o) => ({ id: o.id, label: o.name }))} name="taskAssigneeIds" /></div>
+                    <label className="flex flex-col gap-1"><span className="label">Prazo limite (fatal)</span><input className="input" type="date" name="taskDue" /></label>
+                    <label className="flex flex-col gap-1"><span className="label">Prazo interno (opcional)</span><input className="input" type="date" name="taskInternalDue" /><span className="text-xs text-text-muted">Em branco: calculado pelo tipo, quando o tipo tem a regra.</span></label>
+                    <div className="col-span-2 flex items-end gap-2">
+                      <label className="flex flex-col gap-1"><span className="label">ou calcular: dias</span><input className="input w-24" type="number" min={1} max={365} name="taskDays" placeholder="15" /></label>
+                      <select className="input w-32" name="taskDayCount" defaultValue="business" aria-label="Contagem"><option value="business">úteis</option><option value="calendar">corridos</option></select>
+                    </div>
+                    <p className="col-span-2 text-xs text-text-muted">Os dias contam a partir de hoje, com o calendário de feriados do sistema. Se preencher os dois, vale o número de dias, que define o prazo limite. O prazo interno é a data em que a equipe quer entregar, antes do limite.</p>
                   </fieldset>
                   <label className="col-span-2 flex flex-col gap-1"><span className="label">Detalhamento</span><textarea className="input min-h-16 py-2" name="details" defaultValue={p.details ?? ''} /></label>
                 </ActionForm>

@@ -6,7 +6,7 @@ import { connectorRun, monitoredTerm, nameDecision } from '@/db/schema/inbox';
 import { sendMail } from '@/lib/mail';
 import { addInboxItem } from '@/server/inbox';
 import { getDjenIntervalHours } from '@/server/settings';
-import { autoRegisterEnabled, registerOngoingCase } from '@/server/auto-register';
+import { autoRegisterEnabled, hasPartDoubt, registerOngoingCase } from '@/server/auto-register';
 import { enrichMovementWithAI, ingestMovement } from '@/server/movements';
 import { normalizeCaseNumber } from '@/lib/case-number';
 import { datajud, expandMovements, movementCutoff } from './datajud';
@@ -62,8 +62,8 @@ export async function runConnector(c: Connector, opts: { fetchFn?: typeof fetch;
       }
       if (!handled && c.toInbox) {
         const inbox = c.toInbox(item, ctx);
-        if (inbox && c.name === 'djen' && autoRegisterEnabled()) {
-          // tudo que o DJEN traz já é processo em andamento: entra direto em Processos; só as atualizações seguintes viram alerta
+        if (inbox && c.name === 'djen' && autoRegisterEnabled() && !hasPartDoubt(inbox)) {
+          // tudo que o DJEN traz já é processo em andamento: entra direto em Processos; só as atualizações seguintes viram alerta (dúvida de parte vai à Triagem)
           const r = await registerOngoingCase(inbox);
           if (r.createdCase) { created++; justCreated.add(normalizeCaseNumber(inbox.caseNumber)); }
         } else if (inbox) {

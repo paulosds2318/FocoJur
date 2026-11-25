@@ -1,11 +1,28 @@
+import 'dotenv/config';
 import { expect, test } from '@playwright/test';
+import { Pool } from 'pg';
 
 // Marco M0: admin semeado cria uma advogada; ela entra com a senha temporária,
 // cria a definitiva e vê o layout. Requer `pnpm db:seed` e o Postgres no ar.
 const ADMIN = { email: 'admin@focojur.local', password: 'Trocar12345', next: 'AdminSenha2026' };
 
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+const email = `adv${Date.now()}@teste.com`;
+
+// não deixa a advogada de teste no banco (senão a lista de responsáveis enche de "Beatriz Santos")
+test.afterAll(async () => {
+  const { rows } = await pool.query('select id from "user" where email = $1', [email]);
+  const ids = rows.map((r) => r.id);
+  if (ids.length) {
+    await pool.query('delete from task_assignee where user_id = any($1)', [ids]);
+    await pool.query('delete from session where user_id = any($1)', [ids]);
+    await pool.query('delete from account where user_id = any($1)', [ids]);
+    await pool.query('delete from "user" where id = any($1)', [ids]);
+  }
+  await pool.end();
+});
+
 test('fluxo completo de criação de usuário e primeiro acesso', async ({ page, browser }) => {
-  const email = `adv${Date.now()}@teste.com`;
 
   // admin: primeiro acesso (se ainda for a senha do seed) e criação da advogada
   await page.goto('/login');

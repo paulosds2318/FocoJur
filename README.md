@@ -43,7 +43,7 @@ npx playwright test           # e2e
 - `docs/PRD.md`: requisitos (fonte da verdade)
 - `docs/ROADMAP.md` e `docs/cronograma.md`: marcos e cronograma
 - `docs/design/`: telas de referência
-- `CLAUDE.md`: convenções e regras do projeto
+- `docs/CLAUDE.md`: convenções e regras do projeto (e `docs/AGENTS.md`, aviso sobre a versão do Next.js)
 
 ## Regras que não podem ser quebradas
 

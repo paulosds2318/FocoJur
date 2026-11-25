@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>FocoJur - Usuários</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Nunito',sans-serif;color:#1F1F1F;background:#F6F6F7}
+a{color:#C20000}a:hover{color:#8F0000}
+.nav{display:flex;align-items:center;min-height:40px;padding:0 14px;border-radius:10px;color:#3A3A3A;text-decoration:none;font-weight:700;font-size:14px}
+.nav:hover{background:#FDECEC;color:#A30000}
+.nav-on{background:#C20000;color:#FFFFFF}
+.nav-on:hover{background:#A30000;color:#FFFFFF}
+.navh{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#5A5A5A;padding:16px 14px 6px}
+.card{background:#FFFFFF;border:1px solid #E4E4E7;border-radius:14px}
+.tbl{width:100%;border-collapse:collapse;font-size:14px}
+.tbl th{text-align:left;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:#5A5A5A;padding:10px 12px;border-bottom:1px solid #E4E4E7;white-space:nowrap}
+.tbl td{padding:12px;border-bottom:1px solid #F0F0F2;vertical-align:middle}
+.badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:800;white-space:nowrap}
+.b-red{background:#FDE5E5;color:#A30000}.b-teal{background:#DDF3F1;color:#04625D}.b-yel{background:#FFF1C2;color:#5E4700}.b-gray{background:#EEEEF0;color:#494949}.b-pur{background:#EFE6F2;color:#5C2A6B}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:0 16px;border-radius:10px;font:inherit;font-weight:800;font-size:14px;cursor:pointer;border:1px solid #C20000;background:#C20000;color:#FFFFFF;text-decoration:none}
+.btn:hover{background:#A30000;color:#FFFFFF}
+.btn2{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:0 14px;border-radius:10px;font:inherit;font-weight:800;font-size:14px;cursor:pointer;border:1px solid #C20000;background:#FFFFFF;color:#C20000;white-space:nowrap}
+.btn2:hover{background:#FDECEC;color:#A30000}
+.btn3{display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:0 10px;border-radius:10px;font:inherit;font-weight:700;font-size:13px;cursor:pointer;border:1px solid transparent;background:transparent;color:#494949}
+.btn3:hover{background:#EEEEF0}
+.lbl{font-size:12px;font-weight:800;color:#5A5A5A}
+.inp{min-height:40px;border:1px solid #D4D4D8;border-radius:10px;padding:0 12px;font:inherit;font-size:14px;background:#FFFFFF;color:#1F1F1F;box-sizing:border-box;width:100%}
+</style>
+</helmet>
+<div style="min-height: 100vh; display: flex; flex-wrap: wrap; background: #F6F6F7">
+  <nav aria-label="Menu principal" style="flex: 1 1 240px; background: #FFFFFF; border-right: 1px solid #E4E4E7; padding: 24px 12px; box-sizing: border-box; display: flex; flex-direction: column; gap: 2px">
+    <div style="display: flex; align-items: center; gap: 10px; padding: 0 14px 20px">
+      <div style="width: 36px; height: 36px; border-radius: 10px; background: #F20000; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 18px">F</div>
+      <div style="font-weight: 800; font-size: 20px; color: #1F1F1F">Foco<span style="color: #C20000">Jur</span></div>
+    </div>
+    <a class="nav" href="Main.dc.html">Início</a>
+    <a class="nav" href="CaixaEntrada.dc.html">Caixa de entrada <span class="badge b-red" style="margin-left: auto">12</span></a>
+    <a class="nav" href="Triagem.dc.html">Triagem <span class="badge b-red" style="margin-left: auto">38</span></a>
+    <a class="nav" href="Tarefas.dc.html">Tarefas e prazos</a>
+    <a class="nav" href="Processos.dc.html">Processos</a>
+    <a class="nav" href="Paineis.dc.html">Painéis</a>
+    <div class="navh">Administração</div>
+    <a class="nav nav-on" href="AdminUsuarios.dc.html" aria-current="page">Usuários</a>
+    <a class="nav" href="AdminIA.dc.html">Modelos de IA</a>
+    <a class="nav" href="CustosIA.dc.html">Custos de IA</a>
+    <div style="margin-top: auto; padding: 16px 14px 0; border-top: 1px solid #E4E4E7; display: flex; flex-direction: column; gap: 2px">
+      <div style="font-weight: 800; font-size: 14px">Ana Ribeiro</div>
+      <div style="font-size: 12px; color: #5A5A5A">Advogada · Admin</div>
+    </div>
+  </nav>
+
+  <main style="flex: 999 1 560px; min-width: 0; padding: 32px; box-sizing: border-box; display: flex; flex-direction: column; gap: 20px">
+    <header style="display: flex; flex-direction: column; gap: 6px">
+      <h1 style="margin: 0; font-size: 28px; font-weight: 800">Usuários</h1>
+      <p style="margin: 0; color: #5A5A5A; font-size: 15px">Não existe cadastro aberto: só um admin cria contas. A pessoa entra com a senha temporária e cria a definitiva no primeiro acesso.</p>
+    </header>
+
+    <div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start">
+      <section class="card" aria-labelledby="h-novo" style="flex: 1 1 320px; padding: 20px; display: flex; flex-direction: column; gap: 14px">
+        <h2 id="h-novo" style="margin: 0; font-size: 17px; font-weight: 800">Criar usuário</h2>
+        <label style="display: flex; flex-direction: column; gap: 4px"><span class="lbl">Nome</span><input class="inp" placeholder="Nome completo"></label>
+        <label style="display: flex; flex-direction: column; gap: 4px"><span class="lbl">E-mail (login)</span><input class="inp" type="email" placeholder="nome@empresa.com.br"></label>
+        <label style="display: flex; flex-direction: column; gap: 4px"><span class="lbl">Perfil</span><select class="inp"><option>Advogada</option><option>Admin</option><option>Leitura</option></select></label>
+        <div style="display: flex; flex-direction: column; gap: 4px">
+          <label for="tmp" class="lbl">Senha temporária</label>
+          <div style="display: flex; gap: 8px"><input id="tmp" class="inp" value="{{senha}}" readonly style="font-family: ui-monospace, monospace; letter-spacing: .04em"><button class="btn2" type="button" onClick="{{gerar}}">Gerar outra</button></div>
+          <span style="font-size: 12px; color: #5A5A5A">Gerada pelo sistema. Vale por 72 horas e só aparece agora: copie e passe à pessoa por um canal seguro.</span>
+        </div>
+        <div style="background: #F6F6F7; border-radius: 10px; padding: 12px; font-size: 13px; line-height: 1.5; color: #494949"><strong>Perfis.</strong> Admin: tudo, inclusive usuários, listas, modelos e custos de IA. Advogada: processos, tarefas e caixa de entrada. Leitura: consulta e painéis.</div>
+        <button class="btn" type="button">Criar usuário</button>
+      </section>
+
+      <section class="card" aria-labelledby="h-users" style="flex: 3 1 560px; min-width: 0; padding: 20px 8px 0; display: flex; flex-direction: column; gap: 8px">
+        <h2 id="h-users" style="margin: 0 12px; font-size: 17px; font-weight: 800">Pessoas</h2>
+        <div style="overflow-x: auto"><table class="tbl">
+          <thead><tr><th>Nome</th><th>Perfil</th><th>Rodízio</th><th>Situação</th><th>Último acesso</th><th>Ações</th></tr></thead>
+          <tbody>
+            <sc-for list="{{users}}" as="u" hint-placeholder-count="6">
+              <tr>
+                <td><div style="font-weight: 800">{{u.nome}}</div><div style="font-size: 12px; color: #5A5A5A">{{u.email}}</div></td>
+                <td>{{u.perfil}}</td>
+                <td>{{u.rod}}</td>
+                <td><span class="badge {{u.cls}}">{{u.sit}}</span></td>
+                <td style="white-space: nowrap">{{u.acesso}}</td>
+                <td style="white-space: nowrap"><button class="btn3" type="button">{{u.a1}}</button><button class="btn3" type="button">{{u.a2}}</button></td>
+              </tr>
+            </sc-for>
+          </tbody>
+        </table></div>
+      </section>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { n: 0 }; }
+  renderVals() {
+    const exemplos = ['Kx7m-Q2pa-9Vtd', 'Rb4w-H8ze-3Lmc', 'Tn6q-W1xs-5Jfa'];
+    return {
+      senha: exemplos.at(this.state.n % exemplos.length),
+      gerar: () => this.setState({ n: this.state.n + 1 }),
+      users: [
+        { nome: 'Ana Ribeiro', email: 'ana.ribeiro@empresa.com.br', perfil: 'Admin', rod: 'Sexta', sit: 'Ativa', cls: 'b-teal', acesso: 'Agora', a1: 'Editar', a2: 'Desativar' },
+        { nome: 'Beatriz Santos', email: 'beatriz.santos@empresa.com.br', perfil: 'Advogada', rod: 'Segunda', sit: 'Ativa', cls: 'b-teal', acesso: 'Ontem 18:02', a1: 'Editar', a2: 'Nova senha temporária' },
+        { nome: 'Carla Menezes', email: 'carla.menezes@empresa.com.br', perfil: 'Advogada', rod: 'Terça', sit: 'Ativa', cls: 'b-teal', acesso: 'Ontem 17:40', a1: 'Editar', a2: 'Nova senha temporária' },
+        { nome: 'Lailson Sobral', email: 'lailson@empresa.com.br', perfil: 'Admin', rod: 'Fora do rodízio', sit: 'Ativo', cls: 'b-teal', acesso: '12/11 10:15', a1: 'Editar', a2: 'Nova senha temporária' },
+        { nome: 'Diretoria Jurídica', email: 'diretoria@empresa.com.br', perfil: 'Leitura', rod: 'Fora do rodízio', sit: 'Aguardando primeiro acesso · senha expira em 2 dias', cls: 'b-yel', acesso: '—', a1: 'Nova senha temporária', a2: 'Desativar' },
+        { nome: 'Estagiário 2025', email: 'estagio@empresa.com.br', perfil: 'Leitura', rod: 'Fora do rodízio', sit: 'Desativado', cls: 'b-gray', acesso: '30/09', a1: 'Reativar', a2: 'Ver auditoria' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

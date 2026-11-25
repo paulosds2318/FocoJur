@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>FocoJur - Ficha do processo</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Nunito',sans-serif;color:#1F1F1F;background:#F6F6F7}
+a{color:#C20000}a:hover{color:#8F0000}
+.nav{display:flex;align-items:center;min-height:40px;padding:0 14px;border-radius:10px;color:#3A3A3A;text-decoration:none;font-weight:700;font-size:14px}
+.nav:hover{background:#FDECEC;color:#A30000}
+.nav-on{background:#C20000;color:#FFFFFF}
+.nav-on:hover{background:#A30000;color:#FFFFFF}
+.navh{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#5A5A5A;padding:16px 14px 6px}
+.card{background:#FFFFFF;border:1px solid #E4E4E7;border-radius:14px}
+.tbl{width:100%;border-collapse:collapse;font-size:14px}
+.tbl th{text-align:left;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:#5A5A5A;padding:10px 12px;border-bottom:1px solid #E4E4E7;white-space:nowrap}
+.tbl td{padding:12px;border-bottom:1px solid #F0F0F2;vertical-align:top}
+.badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:800;white-space:nowrap}
+.b-red{background:#FDE5E5;color:#A30000}.b-teal{background:#DDF3F1;color:#04625D}.b-yel{background:#FFF1C2;color:#5E4700}.b-gray{background:#EEEEF0;color:#494949}.b-pur{background:#EFE6F2;color:#5C2A6B}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:0 16px;border-radius:10px;font:inherit;font-weight:800;font-size:14px;cursor:pointer;border:1px solid #C20000;background:#C20000;color:#FFFFFF;text-decoration:none}
+.btn:hover{background:#A30000;color:#FFFFFF}
+.btn2{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:0 16px;border-radius:10px;font:inherit;font-weight:800;font-size:14px;cursor:pointer;border:1px solid #C20000;background:#FFFFFF;color:#C20000;text-decoration:none}
+.btn2:hover{background:#FDECEC;color:#A30000}
+.btn3{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:0 12px;border-radius:10px;font:inherit;font-weight:700;font-size:14px;cursor:pointer;border:1px solid transparent;background:transparent;color:#494949}
+.btn3:hover{background:#EEEEF0}
+.tab{min-height:44px;padding:0 16px;border:0;border-bottom:3px solid transparent;background:transparent;font:inherit;font-size:15px;font-weight:800;color:#5A5A5A;cursor:pointer}
+.tab:hover{color:#1F1F1F}
+.tab-on{border-bottom-color:#C20000;color:#1F1F1F}
+.lbl{font-size:12px;font-weight:800;color:#5A5A5A}
+.val{font-size:14px;font-weight:700}
+.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+</style>
+</helmet>
+<div style="min-height: 100vh; display: flex; flex-wrap: wrap; background: #F6F6F7">
+  <nav aria-label="Menu principal" style="flex: 1 1 240px; background: #FFFFFF; border-right: 1px solid #E4E4E7; padding: 24px 12px; box-sizing: border-box; display: flex; flex-direction: column; gap: 2px">
+    <div style="display: flex; align-items: center; gap: 10px; padding: 0 14px 20px">
+      <div style="width: 36px; height: 36px; border-radius: 10px; background: #F20000; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 18px">F</div>
+      <div style="font-weight: 800; font-size: 20px; color: #1F1F1F">Foco<span style="color: #C20000">Jur</span></div>
+    </div>
+    <a class="nav" href="Main.dc.html">Início</a>
+    <a class="nav" href="CaixaEntrada.dc.html">Caixa de entrada <span class="badge b-red" style="margin-left: auto">12</span></a>
+    <a class="nav" href="Triagem.dc.html">Triagem <span class="badge b-red" style="margin-left: auto">38</span></a>
+    <a class="nav" href="Tarefas.dc.html">Tarefas e prazos</a>
+    <a class="nav nav-on" href="Processos.dc.html">Processos</a>
+    <a class="nav" href="Paineis.dc.html">Painéis</a>
+    <div class="navh">Administração</div>
+    <a class="nav" href="AdminUsuarios.dc.html">Usuários</a>
+    <a class="nav" href="AdminIA.dc.html">Modelos de IA</a>
+    <a class="nav" href="CustosIA.dc.html">Custos de IA</a>
+    <div style="margin-top: auto; padding: 16px 14px 0; border-top: 1px solid #E4E4E7; display: flex; flex-direction: column; gap: 2px">
+      <div style="font-weight: 800; font-size: 14px">Ana Ribeiro</div>
+      <div style="font-size: 12px; color: #5A5A5A">Advogada · Admin</div>
+    </div>
+  </nav>
+
+  <main style="flex: 999 1 560px; min-width: 0; padding: 32px; box-sizing: border-box; display: flex; flex-direction: column; gap: 20px">
+    <a href="Processos.dc.html" style="font-size: 14px; font-weight: 700">Voltar para processos</a>
+    <header class="card" style="padding: 20px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px">
+      <div style="display: flex; flex-direction: column; gap: 8px">
+        <div style="display: flex; flex-wrap: wrap; gap: 6px"><span class="badge b-gray">Cível</span><span class="badge b-teal">Em andamento</span><span class="badge b-yel">Prognóstico possível</span><span class="badge b-gray">eProc · TJRS</span></div>
+        <h1 style="margin: 0; font-size: 26px; font-weight: 800">5011870-02.2026.8.21.0001</h1>
+        <p style="margin: 0; font-size: 15px; color: #494949">Renata Lopes Andrade x Foco Aluguel de Carros S/A · 3º Juizado Especial Cível de Porto Alegre - RS</p>
+        <p style="margin: 0; font-size: 13px; color: #5A5A5A">Responsável: Ana Ribeiro · Recebido em 13/11/2026 via Domicílio Judicial · Citação em 13/11/2026</p>
+      </div>
+      <div style="display: flex; flex-wrap: wrap; align-items: flex-start; gap: 8px">
+        <label style="display: flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 12px; border: 1px solid #D4D4D8; border-radius: 10px; font-size: 14px; font-weight: 700"><input type="checkbox" checked style="width: 18px; height: 18px; accent-color: #04625D">Monitoramento ativo</label>
+        <button class="btn3" type="button">Editar</button>
+        <button class="btn2" type="button">Encerrar processo</button>
+        <button class="btn" type="button">Nova tarefa</button>
+      </div>
+    </header>
+
+    <div role="tablist" aria-label="Seções do processo" style="display: flex; flex-wrap: wrap; gap: 4px; border-bottom: 1px solid #E4E4E7">
+      <sc-for list="{{tabs}}" as="t" hint-placeholder-count="5">
+        <button role="tab" type="button" class="{{t.cls}}" aria-selected="{{t.sel}}" onClick="{{t.pick}}">{{t.nome}}</button>
+      </sc-for>
+    </div>
+
+    <sc-if value="{{isResumo}}" hint-placeholder-val="{{ true }}">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px">
+        <section class="card" aria-labelledby="h-dados" style="padding: 20px; display: flex; flex-direction: column; gap: 14px">
+          <h2 id="h-dados" style="margin: 0; font-size: 17px; font-weight: 800">Dados do processo</h2>
+          <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+            <div><div class="lbl">Foro / esfera</div><div class="val">Juizado</div></div>
+            <div><div class="lbl">UF / comarca</div><div class="val">RS · Porto Alegre</div></div>
+            <div><div class="lbl">Pedido</div><div class="val">Danos materiais e morais</div></div>
+            <div><div class="lbl">Objeto</div><div class="val">Ausência de baixa na caução</div></div>
+            <div><div class="lbl">Advogado do autor</div><div class="val">Sem advogado</div></div>
+            <div><div class="lbl">Escritório</div><div class="val">Interno</div></div>
+          </div>
+          <div><div class="lbl">Detalhamento</div><p style="margin: 4px 0 0; font-size: 14px; line-height: 1.5">Cliente relata que, após a devolução do veículo, não recebeu o estorno da caução.</p></div>
+        </section>
+
+        <section class="card" aria-labelledby="h-risco" style="padding: 20px; display: flex; flex-direction: column; gap: 14px">
+          <h2 id="h-risco" style="margin: 0; font-size: 17px; font-weight: 800">Risco e contingência</h2>
+          <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+            <div><div class="lbl">Prognóstico</div><div class="val">Possível</div></div>
+            <div><div class="lbl">Valor da causa</div><div class="val">R$ 12.450,00</div></div>
+            <div><div class="lbl">Risco dano material</div><div class="val">R$ 2.450,00</div></div>
+            <div><div class="lbl">Risco dano moral</div><div class="val">R$ 5.000,00</div></div>
+            <div><div class="lbl">Valor de risco total</div><div class="val" style="font-size: 20px">R$ 7.450,00</div></div>
+            <div><div class="lbl">Limite de acordo</div><div class="val">R$ 2.000,00</div></div>
+          </div>
+          <p style="margin: 0; font-size: 12px; color: #5A5A5A">Última revisão do prognóstico: 13/11/2026 por Ana Ribeiro</p>
+        </section>
+
+        <section class="card" aria-labelledby="h-contrato" style="padding: 20px; display: flex; flex-direction: column; gap: 14px">
+          <div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px"><h2 id="h-contrato" style="margin: 0; font-size: 17px; font-weight: 800">Contrato e locação</h2><span class="badge b-teal">Do sistema de locação</span></div>
+          <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+            <div><div class="lbl">Contrato</div><div class="val">POA004871-26</div></div>
+            <div><div class="lbl">Loja / centro de custo</div><div class="val">POA</div></div>
+            <div><div class="lbl">Veículo</div><div class="val">VW Polo · RXY4B21</div></div>
+            <div><div class="lbl">Tipo de locação</div><div class="val">RAC</div></div>
+            <div><div class="lbl">Origem da reserva</div><div class="val">Site Foco</div></div>
+            <div><div class="lbl">Contrato assinado</div><div class="val">Sim</div></div>
+          </div>
+        </section>
+
+        <section class="card" aria-labelledby="h-causa" style="padding: 20px; display: flex; flex-direction: column; gap: 14px">
+          <h2 id="h-causa" style="margin: 0; font-size: 17px; font-weight: 800">Causa raiz</h2>
+          <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+            <div><div class="lbl">Era evitável pela Foco?</div><div class="val">Sim</div></div>
+            <div><div class="lbl">Área de origem</div><div class="val">Financeiro</div></div>
+          </div>
+          <div><div class="lbl">Erro cometido e solução</div><p style="margin: 4px 0 0; font-size: 14px; line-height: 1.5">Estorno da caução não processado após a devolução. Solução: rotina automática de baixa da caução no fechamento do contrato.</p></div>
+        </section>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{isMov}}" hint-placeholder-val="{{ false }}">
+      <section class="card" aria-label="Movimentações" style="padding: 20px; display: flex; flex-direction: column; gap: 4px">
+        <sc-for list="{{movs}}" as="m" hint-placeholder-count="4">
+          <article style="display: flex; gap: 16px; padding: 14px 0; border-bottom: 1px solid #F0F0F2">
+            <div style="flex: 0 0 96px; font-size: 13px; font-weight: 800; color: #494949">{{m.data}}<div style="font-weight: 600; color: #5A5A5A">{{m.fonte}}</div></div>
+            <div style="flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 6px">
+              <div style="font-size: 14px; font-weight: 800">{{m.titulo}}</div>
+              <div style="font-size: 14px; color: #494949; line-height: 1.45"><span style="font-weight: 800; color: #5C2A6B">Resumo IA: </span>{{m.resumo}}</div>
+              <div><span class="badge {{m.cls}}">{{m.status}}</span></div>
+            </div>
+          </article>
+        </sc-for>
+      </section>
+    </sc-if>
+
+    <sc-if value="{{isTar}}" hint-placeholder-val="{{ false }}">
+      <section class="card" aria-label="Tarefas do processo" style="padding: 8px 8px 0">
+        <div style="overflow-x: auto"><table class="tbl">
+          <thead><tr><th>Tarefa</th><th>Tipo</th><th>Prazo</th><th>Responsável</th><th>Revisor</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td style="font-weight: 700">Contestação</td><td>Contestação</td><td><span class="badge b-yel">04/12/2026</span></td><td>Ana</td><td>Beatriz</td><td><span class="badge b-gray">A fazer</span></td></tr>
+            <tr><td style="font-weight: 700">Solicitar subsídios ao Financeiro (estorno)</td><td>Subsídio</td><td><span class="badge b-gray">20/11/2026</span></td><td>Ana</td><td>—</td><td><span class="badge b-gray">Em andamento</span></td></tr>
+          </tbody>
+        </table></div>
+      </section>
+    </sc-if>
+
+    <sc-if value="{{isFin}}" hint-placeholder-val="{{ false }}">
+      <section class="card" aria-label="Financeiro do processo" style="padding: 8px 8px 0">
+        <div style="overflow-x: auto"><table class="tbl">
+          <thead><tr><th>Data</th><th>Tipo</th><th>Descrição</th><th>Ticket SENS</th><th class="num">Valor</th></tr></thead>
+          <tbody>
+            <tr><td>—</td><td colspan="4" style="color: #5A5A5A">Nenhum lançamento ainda. Custas, acordos, condenações, honorários e correspondentes aparecem aqui.</td></tr>
+          </tbody>
+        </table></div>
+        <div style="padding: 12px"><button class="btn2" type="button">Novo lançamento</button></div>
+      </section>
+    </sc-if>
+
+    <sc-if value="{{isHist}}" hint-placeholder-val="{{ false }}">
+      <section class="card" aria-label="Histórico de alterações" style="padding: 20px; display: flex; flex-direction: column; gap: 10px; font-size: 14px">
+        <div><strong>13/11 08:31 · Ana Ribeiro</strong> criou o processo a partir da caixa de entrada (Domicílio Judicial).</div>
+        <div><strong>13/11 08:31 · Ana Ribeiro</strong> aceitou as sugestões da IA: objeto, pedido e prognóstico.</div>
+        <div><strong>13/11 08:32 · Sistema</strong> vinculou o contrato POA004871-26 (sistema de locação).</div>
+        <div><strong>13/11 08:35 · Ana Ribeiro</strong> confirmou o prazo de contestação sugerido pela IA (04/12/2026).</div>
+      </section>
+    </sc-if>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1500}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { tab: 'resumo' }; }
+  renderVals() {
+    const tab = this.state.tab;
+    const def = [['resumo', 'Resumo'], ['mov', 'Movimentações (3)'], ['tar', 'Tarefas (2)'], ['fin', 'Financeiro'], ['hist', 'Histórico']];
+    return {
+      tabs: def.map(([id, nome]) => ({ nome, sel: tab === id ? 'true' : 'false', cls: tab === id ? 'tab tab-on' : 'tab', pick: () => this.setState({ tab: id }) })),
+      isResumo: tab === 'resumo', isMov: tab === 'mov', isTar: tab === 'tar', isFin: tab === 'fin', isHist: tab === 'hist',
+      movs: [
+        { data: '13/11/2026', fonte: 'Domicílio', titulo: 'Citação expedida', resumo: 'Foco citada para apresentar contestação no prazo legal. Audiência de conciliação a designar.', status: 'Prazo confirmado: contestação até 04/12', cls: 'b-teal' },
+        { data: '11/11/2026', fonte: 'DJEN', titulo: 'Despacho inicial', resumo: 'Recebida a inicial e deferida a gratuidade de justiça à autora.', status: 'Lida, sem prazo', cls: 'b-gray' },
+        { data: '10/11/2026', fonte: 'Captura antecipada', titulo: 'Distribuição', resumo: 'Ação distribuída ao 3º Juizado Especial Cível de Porto Alegre.', status: 'Lida, sem prazo', cls: 'b-gray' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

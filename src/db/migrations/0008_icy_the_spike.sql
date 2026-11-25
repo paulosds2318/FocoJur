@@ -1,0 +1,1 @@
+ALTER TABLE "monitored_term" DROP COLUMN "search_days";

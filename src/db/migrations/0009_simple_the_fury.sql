@@ -1,0 +1,1 @@
+ALTER TABLE "lookup" ADD COLUMN "description" text;

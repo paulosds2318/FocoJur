@@ -1,0 +1,56 @@
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: focojur
+      POSTGRES_PASSWORD: focojur
+      POSTGRES_DB: focojur
+    ports:
+      - "5440:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+  mailpit:
+    image: axllent/mailpit
+    ports:
+      - "1025:1025"   # SMTP
+      - "8025:8025"   # interface web
+
+  # App em container (opcional): docker compose --profile app up -d --build
+  app:
+    profiles: ["app"]
+    build:
+      context: .
+      target: runner
+    depends_on:
+      - postgres
+    ports:
+      - "3100:3100"
+    environment:
+      DATABASE_URL: postgres://focojur:focojur@postgres:5432/focojur
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?defina BETTER_AUTH_SECRET no .env}
+      BETTER_AUTH_URL: http://localhost:3100
+      SMTP_HOST: mailpit
+      SMTP_PORT: "1025"
+      SMTP_FROM: "FocoJur <nao-responda@exemplo.com.br>"
+      STORAGE_DRIVER: local
+      TZ_APP: America/Sao_Paulo
+  # Worker: alerta de prazos, PTAX, catálogo de modelos, conectores e robô
+  worker:
+    profiles: ["app"]
+    build:
+      context: .
+      target: worker
+    depends_on:
+      - postgres
+    environment:
+      DATABASE_URL: postgres://focojur:focojur@postgres:5432/focojur
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?defina BETTER_AUTH_SECRET no .env}
+      BETTER_AUTH_URL: http://localhost:3100
+      SMTP_HOST: mailpit
+      SMTP_PORT: "1025"
+      SMTP_FROM: "FocoJur <nao-responda@exemplo.com.br>"
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
+      DATAJUD_API_KEY: ${DATAJUD_API_KEY:-}
+      STORAGE_DRIVER: local
+volumes:
+  pgdata:

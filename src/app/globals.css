@@ -1,0 +1,156 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-brand: #f20000;
+  --color-primary: #c20000;
+  --color-primary-hover: #a30000;
+  --color-link: #c20000;
+  --color-link-hover: #8f0000;
+  --color-bg: #f6f6f7;
+  --color-surface: #ffffff;
+  --color-surface-2: #eeeef0;
+  --color-surface-3: #f0f0f2;
+  --color-selected: #fff6f6;
+  --color-border: #e4e4e7;
+  --color-input-border: #d4d4d8;
+  --color-text: #1f1f1f;
+  --color-on-text: #ffffff;
+  --color-soft: #494949;
+  --color-text-muted: #5a5a5a;
+  --color-ai: #5c2a6b;
+  --color-ai-bg: #fbf8fc;
+  --color-ai-chip: #efe6f2;
+  --color-ai-border: #e7dceb;
+  --color-ok: #04625d;
+  --color-ok-bg: #ddf3f1;
+  --color-ok-border: #bfe6e2;
+  --color-ok-soft: #f1faf9;
+  --color-warn: #5e4700;
+  --color-warn-bg: #fff1c2;
+  --color-danger: #a30000;
+  --color-danger-bg: #fde5e5;
+  --radius-control: 10px;
+  --radius-card: 14px;
+  --font-sans: var(--font-nunito), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Tema escuro: sobrescreve os mesmos tokens. Vale quando o usuário escolhe "Escuro" ou, em "Automático", quando o sistema está no escuro. */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --color-link: #ff8080;
+  --color-link-hover: #ffb0b0;
+  --color-bg: #121214;
+  --color-surface: #1c1c1f;
+  --color-surface-2: #2a2a2f;
+  --color-surface-3: #2a2a2f;
+  --color-selected: #2b1a1a;
+  --color-border: #2f2f35;
+  --color-input-border: #44444c;
+  --color-text: #ececee;
+  --color-on-text: #121214;
+  --color-soft: #c2c2c9;
+  --color-text-muted: #a3a3ac;
+  --color-ai: #d9b3ea;
+  --color-ai-bg: #231a29;
+  --color-ai-chip: #35243f;
+  --color-ai-border: #4a3556;
+  --color-ok: #6fdcd2;
+  --color-ok-bg: #0f3330;
+  --color-ok-border: #1d5b56;
+  --color-ok-soft: #10282a;
+  --color-warn: #f2cf5b;
+  --color-warn-bg: #3a2f08;
+  --color-danger: #ff9a9a;
+  --color-danger-bg: #3d1717;
+}
+:root[data-theme='light'] {
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-theme='auto'] {
+    color-scheme: dark;
+    --color-link: #ff8080;
+    --color-link-hover: #ffb0b0;
+    --color-bg: #121214;
+    --color-surface: #1c1c1f;
+    --color-surface-2: #2a2a2f;
+    --color-surface-3: #2a2a2f;
+    --color-selected: #2b1a1a;
+    --color-border: #2f2f35;
+    --color-input-border: #44444c;
+    --color-text: #ececee;
+    --color-on-text: #121214;
+    --color-soft: #c2c2c9;
+    --color-text-muted: #a3a3ac;
+    --color-ai: #d9b3ea;
+    --color-ai-bg: #231a29;
+    --color-ai-chip: #35243f;
+    --color-ai-border: #4a3556;
+    --color-ok: #6fdcd2;
+    --color-ok-bg: #0f3330;
+    --color-ok-border: #1d5b56;
+    --color-ok-soft: #10282a;
+    --color-warn: #f2cf5b;
+    --color-warn-bg: #3a2f08;
+    --color-danger: #ff9a9a;
+    --color-danger-bg: #3d1717;
+  }
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+}
+
+@layer base {
+  a {
+    color: var(--color-link);
+  }
+  a:hover {
+    color: var(--color-link-hover);
+  }
+}
+
+@layer components {
+  .card {
+    @apply rounded-card border border-border bg-surface;
+  }
+  .btn {
+    @apply inline-flex min-h-10 cursor-pointer items-center justify-center rounded-control border border-primary bg-primary px-4 text-sm font-extrabold text-white no-underline hover:bg-primary-hover hover:text-white disabled:opacity-60;
+  }
+  .btn-secondary {
+    @apply inline-flex min-h-10 cursor-pointer items-center justify-center rounded-control border border-link bg-surface px-4 text-sm font-extrabold text-link no-underline hover:bg-danger-bg hover:text-link-hover disabled:opacity-60;
+  }
+  .btn-ghost {
+    @apply inline-flex min-h-9 cursor-pointer items-center justify-center rounded-control border border-transparent bg-transparent px-2.5 text-[13px] font-bold text-soft hover:bg-surface-2;
+  }
+  .input {
+    @apply min-h-10 w-full rounded-control border border-input-border bg-surface px-3 text-sm text-text;
+  }
+  .label {
+    @apply text-xs font-extrabold text-text-muted;
+  }
+  .badge {
+    @apply inline-block whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-extrabold;
+  }
+  .b-red { @apply bg-danger-bg text-danger; }
+  .b-teal { @apply bg-ok-bg text-ok; }
+  .b-yel { @apply bg-warn-bg text-warn; }
+  .b-gray { @apply bg-surface-2 text-soft; }
+  .b-pur { @apply bg-ai-chip text-ai; }
+  .tbl { @apply w-full border-collapse text-sm; }
+  .tbl th { @apply whitespace-nowrap border-b border-border px-3 py-2.5 text-left text-xs font-extrabold uppercase tracking-wide text-text-muted; }
+  .tbl td { @apply border-b border-surface-3 px-3 py-3 align-middle; }
+  .nav-link {
+    @apply flex min-h-10 items-center rounded-control px-3.5 text-sm font-bold text-soft no-underline hover:bg-danger-bg hover:text-danger;
+  }
+  .nav-link[aria-current='page'] {
+    @apply bg-primary text-white hover:bg-primary-hover hover:text-white;
+  }
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-text);
+  outline-offset: 2px;
+}

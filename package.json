@@ -1,0 +1,52 @@
+{
+  "name": "focojur",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3100",
+    "build": "next build",
+    "start": "next start -p 3100",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "tsx src/db/migrate.ts",
+    "db:seed": "tsx src/db/seed/index.ts",
+    "worker": "tsx worker/index.ts",
+    "digest": "tsx scripts/send-digest.ts",
+    "migrar:planilha": "tsx scripts/migracao/planilha.ts",
+    "migrar:planner": "tsx scripts/migracao/planner.ts",
+    "triagem:converter-djen": "tsx scripts/converter-triagem-djen.ts",
+    "consulta:djen": "tsx scripts/consulta-djen.ts",
+    "datajud:agendado": "tsx scripts/datajud-agendado.ts"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.1169.0",
+    "better-auth": "^1.7.25",
+    "clsx": "^2.1.1",
+    "drizzle-orm": "^0.45.4",
+    "exceljs": "^4.4.0",
+    "next": "^16.4.6",
+    "nodemailer": "^10.5.0",
+    "pg": "^8.23.1",
+    "pg-boss": "^12.38.2",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.65.1",
+    "@tailwindcss/postcss": "^4.3.5",
+    "@types/node": "^26.6.6",
+    "@types/nodemailer": "^8.0.2",
+    "@types/pg": "^8.23.1",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "dotenv": "^18.0.10",
+    "drizzle-kit": "^0.31.11",
+    "postcss": "^8.5.33",
+    "tailwindcss": "^4.3.5",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vitest": "^5.1.0"
+  }
+}

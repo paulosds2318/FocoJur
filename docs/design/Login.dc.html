@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>FocoJur - Login e primeiro acesso</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Nunito',sans-serif;color:#1F1F1F;background:#F6F6F7}
+a{color:#C20000}a:hover{color:#8F0000}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 16px;border-radius:10px;font:inherit;font-weight:800;font-size:15px;cursor:pointer;border:1px solid #C20000;background:#C20000;color:#FFFFFF;text-decoration:none}
+.btn:hover{background:#A30000;color:#FFFFFF}
+.lbl{font-size:13px;font-weight:800;color:#494949}
+.inp{min-height:44px;border:1px solid #D4D4D8;border-radius:10px;padding:0 12px;font:inherit;font-size:15px;background:#FFFFFF;color:#1F1F1F;box-sizing:border-box;width:100%}
+.seg{flex:1 1 0;min-height:40px;border:0;border-radius:8px;background:transparent;font:inherit;font-size:14px;font-weight:800;color:#494949;cursor:pointer}
+.seg-on{background:#FFFFFF;color:#1F1F1F;box-shadow:0 1px 2px rgba(0,0,0,.08)}
+</style>
+</helmet>
+<div style="min-height: 100vh; display: flex; flex-wrap: wrap">
+  <section style="flex: 1 1 420px; background: #F20000; color: #FFFFFF; padding: 56px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between; gap: 32px">
+    <div style="display: flex; align-items: center; gap: 12px">
+      <div style="width: 44px; height: 44px; border-radius: 12px; background: #FFFFFF; color: #F20000; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 22px">F</div>
+      <div style="font-weight: 800; font-size: 26px">FocoJur</div>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 12px; max-width: 460px">
+      <h1 style="margin: 0; font-size: 40px; line-height: 1.15; font-weight: 800">Todos os processos da Foco, num só lugar.</h1>
+      <p style="margin: 0; font-size: 17px; line-height: 1.5">Captura, cadastro, prazos e painéis do Jurídico.</p>
+    </div>
+    <p style="margin: 0; font-size: 13px">DUO Technology · Grupo Foco</p>
+  </section>
+
+  <section style="flex: 1 1 420px; background: #FFFFFF; padding: 56px 32px; box-sizing: border-box; display: flex; align-items: center; justify-content: center">
+    <div style="width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 20px">
+      <div role="group" aria-label="Exemplo de tela" style="display: flex; gap: 4px; padding: 4px; background: #EEEEF0; border-radius: 10px">
+        <sc-for list="{{modos}}" as="m" hint-placeholder-count="2"><button type="button" class="{{m.cls}}" aria-pressed="{{m.sel}}" onClick="{{m.pick}}">{{m.nome}}</button></sc-for>
+      </div>
+
+      <sc-if value="{{isLogin}}" hint-placeholder-val="{{ true }}">
+        <form style="display: flex; flex-direction: column; gap: 16px">
+          <div><h2 style="margin: 0; font-size: 26px; font-weight: 800">Entrar</h2><p style="margin: 6px 0 0; color: #5A5A5A; font-size: 15px">No primeiro acesso, use a senha temporária que o administrador te passou.</p></div>
+          <label style="display: flex; flex-direction: column; gap: 6px"><span class="lbl">E-mail</span><input class="inp" type="email" placeholder="nome@empresa.com.br"></label>
+          <label style="display: flex; flex-direction: column; gap: 6px"><span class="lbl">Senha</span><input class="inp" type="password"></label>
+          <button class="btn" type="button" onClick="{{irPrimeiro}}">Entrar</button>
+          <p style="margin: 0; font-size: 13px; color: #5A5A5A; text-align: center">Esqueceu a senha ou não tem acesso? Peça a um administrador do FocoJur uma nova senha temporária.</p>
+        </form>
+      </sc-if>
+
+      <sc-if value="{{isPrimeiro}}" hint-placeholder-val="{{ false }}">
+        <form style="display: flex; flex-direction: column; gap: 16px">
+          <div><h2 style="margin: 0; font-size: 26px; font-weight: 800">Crie sua senha definitiva</h2><p style="margin: 6px 0 0; color: #5A5A5A; font-size: 15px">Olá, Beatriz. Você entrou com uma senha temporária. Para continuar, defina a sua senha.</p></div>
+          <label style="display: flex; flex-direction: column; gap: 6px"><span class="lbl">Nova senha</span><input class="inp" type="password"></label>
+          <label style="display: flex; flex-direction: column; gap: 6px"><span class="lbl">Confirme a nova senha</span><input class="inp" type="password"></label>
+          <ul style="margin: 0; padding-left: 18px; font-size: 13px; color: #494949; line-height: 1.6"><li>Mínimo de 10 caracteres</li><li>Letras e números</li><li>Diferente da senha temporária</li></ul>
+          <a class="btn" href="Main.dc.html">Salvar e entrar</a>
+          <p style="margin: 0; font-size: 13px; color: #5A5A5A; text-align: center">Enquanto a senha definitiva não for criada, nenhuma outra tela fica disponível.</p>
+        </form>
+      </sc-if>
+    </div>
+  </section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { modo: 'login' }; }
+  renderVals() {
+    const m = this.state.modo;
+    return {
+      modos: [['login', 'Login'], ['primeiro', 'Primeiro acesso']].map(([id, nome]) => ({ nome, sel: m === id ? 'true' : 'false', cls: m === id ? 'seg seg-on' : 'seg', pick: () => this.setState({ modo: id }) })),
+      irPrimeiro: () => this.setState({ modo: 'primeiro' }),
+      isLogin: m === 'login',
+      isPrimeiro: m === 'primeiro'
+    };
+  }
+}
+</script>
+</body>
+</html>

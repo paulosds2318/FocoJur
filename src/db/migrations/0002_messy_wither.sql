@@ -1,0 +1,1 @@
+ALTER TABLE "connector_run" ADD COLUMN "cursor" text;

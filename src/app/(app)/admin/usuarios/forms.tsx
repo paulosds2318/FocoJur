@@ -14,13 +14,13 @@ export function CreateUserForm() {
         <label className="flex flex-col gap-1">
           <span className="label">Perfil</span>
           <select className="input" name="role" defaultValue="lawyer">
-            <option value="lawyer">Advogada</option>
+            <option value="lawyer">Advogado(a)</option>
             <option value="admin">Admin</option>
             <option value="viewer">Leitura</option>
           </select>
         </label>
         <div className="rounded-control bg-bg p-3 text-[13px] leading-normal text-soft">
-          <strong>Perfis.</strong> Admin: tudo, inclusive usuários, listas, modelos e custos de IA. Advogada: processos, tarefas e caixa de entrada. Leitura: consulta e painéis.
+          <strong>Perfis.</strong> Admin: tudo, inclusive usuários, listas, modelos e custos de IA. Advogado(a): processos, tarefas e caixa de entrada. Leitura: consulta e painéis.
         </div>
         {state?.error && <p role="alert" className="rounded-control bg-danger-bg px-3 py-2 text-sm font-bold text-danger">{state.error}</p>}
         <button className="btn" type="submit" disabled={pending}>{pending ? 'Criando…' : 'Criar usuário'}</button>

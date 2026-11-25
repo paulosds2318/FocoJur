@@ -105,7 +105,7 @@ export default async function ImportacaoLotePage({ params }: { params: Promise<{
             {rep.unknown!.map((u) => <p key={u.type} className="text-sm"><strong>{LIST_LABEL[u.type] ?? u.type}:</strong> {u.values.slice(0, 40).join('; ')}{u.values.length > 40 ? '…' : ''}</p>)}</section>
         )}
         {(rep.noOwner?.length ?? 0) > 0 && (
-          <section className="card flex flex-col gap-2 p-5"><h2 className="text-[17px] font-extrabold">Advogadas sem usuário no FocoJur</h2>
+          <section className="card flex flex-col gap-2 p-5"><h2 className="text-[17px] font-extrabold">Advogados(as) sem usuário no FocoJur</h2>
             <p className="text-sm">{rep.noOwner!.join('; ')}. Os processos delas foram gravados com escritório externo.</p></section>
         )}
         <section className="card flex flex-col gap-3 p-5"><h2 className="text-[17px] font-extrabold">Exceções ({num(rep.issuesTotal ?? 0)})</h2><Issues issues={rep.issues ?? []} /></section>
@@ -189,7 +189,7 @@ export default async function ImportacaoLotePage({ params }: { params: Promise<{
                 {pv.unknown.map((u) => <p key={u.type}><strong>{LIST_LABEL[u.type] ?? u.type}:</strong> {u.values.slice(0, 30).join('; ')}{u.values.length > 30 ? '…' : ''}</p>)}
                 <p className="text-xs text-text-muted">Se preferir, cadastre esses valores em Listas oficiais antes de importar.</p></div>
             )}
-            {pv.noOwner.length > 0 && <p className="rounded-control bg-warn-bg px-3.5 py-3 text-sm"><strong className="text-warn">Advogadas sem usuário:</strong> {pv.noOwner.join('; ')}. Os processos delas entram com escritório externo.</p>}
+            {pv.noOwner.length > 0 && <p className="rounded-control bg-warn-bg px-3.5 py-3 text-sm"><strong className="text-warn">Advogados(as) sem usuário:</strong> {pv.noOwner.join('; ')}. Os processos entram com escritório externo.</p>}
             <h3 className="text-sm font-extrabold">Exceções encontradas</h3>
             <Issues issues={pv.issues} />
           </>

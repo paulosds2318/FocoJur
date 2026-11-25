@@ -153,7 +153,7 @@ export async function writeRecords(records: CaseRecord[], opts: { actorId?: stri
     const owner = findUser(r.owner);
     if (r.owner && !owner) {
       noOwner.add(r.owner);
-      r.issues.push({ severity: 'aviso', code: 'advogada_sem_usuario', message: `Advogada "${r.owner}" sem usuário correspondente (gravada em escritório externo)` });
+      r.issues.push({ severity: 'aviso', code: 'advogada_sem_usuario', message: `Advogado(a) "${r.owner}" sem usuário correspondente (gravada em escritório externo)` });
     }
     const caseId = await db.transaction(async (tx) => {
       const [c] = await tx.insert(cases).values({
@@ -256,7 +256,7 @@ export async function reportWorkbook(batch: { fileName: string; summary: unknown
     rep.unknown.forEach((u) => u.values.forEach((value) => un.addRow({ type: u.type, value })));
   }
   if (rep.noOwner?.length) {
-    const no = out.addWorksheet('Advogadas sem usuário');
+    const no = out.addWorksheet('Advogados sem usuário');
     no.columns = [{ header: 'Nome na planilha', key: 'n', width: 40 }];
     no.getRow(1).font = { bold: true };
     rep.noOwner.forEach((n) => no.addRow({ n }));

@@ -18,7 +18,7 @@ export function CompareForm({ models }: { models: { id: string; name: string }[]
           <label className="flex flex-col gap-1"><span className="label">Modelo B (candidato)</span><input className="input" name="b" list="cmp-models" required /></label>
           <label className="flex flex-col gap-1"><span className="label">Amostra</span><select className="input" name="size" defaultValue="20"><option value="20">20 movimentações já revisadas</option><option value="50">50 movimentações já revisadas</option></select></label>
         </div>
-        <p className="text-[13px] text-text-muted">Roda os dois modelos sobre casos que as advogadas já revisaram e compara acerto (data final igual à decidida por elas), custo e tempo. Não altera nenhum dado nem entra no painel de custos.</p>
+        <p className="text-[13px] text-text-muted">Roda os dois modelos sobre casos que advogados(as) já revisaram e compara acerto (data final igual à decidida por eles(as)), custo e tempo. Não altera nenhum dado nem entra no painel de custos.</p>
         <div className="flex items-center gap-3">
           <button className="btn-secondary" type="submit" disabled={pending}>{pending ? 'Comparando… (pode levar um minuto)' : 'Rodar comparação'}</button>
           {state?.error && <span role="alert" className="text-sm font-bold text-danger">{state.error}</span>}

@@ -28,5 +28,5 @@ export async function requireRole(...roles: Role[]) {
 export const requireAdmin = () => requireRole('admin');
 
 export function roleLabel(role?: string | null) {
-  return role === 'admin' ? 'Admin' : role === 'viewer' ? 'Leitura' : 'Advogada';
+  return role === 'admin' ? 'Admin' : role === 'viewer' ? 'Leitura' : 'Advogado(a)';
 }

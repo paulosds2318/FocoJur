@@ -54,7 +54,7 @@ export function NewCaseForm(p: { systems: Opt[]; courtTypes: Opt[]; subjects: Op
         <Field label="Loja / centro de custo">{text('costCenter', { placeholder: 'ex.: POA' })}</Field>
         <Field label="Recebido em">{text('receivedAt', { type: 'date' })}</Field>
         <Field label="Citação em">{text('citedAt', { type: 'date' })}</Field>
-        <Field error={err('ownerId')} label={`Advogada responsável${civil ? ' *' : ''}`}><Sel name="ownerId" opts={p.owners} value={v('ownerId')} /></Field>
+        <Field error={err('ownerId')} label={`Advogado(a) responsável${civil ? ' *' : ''}`}><Sel name="ownerId" opts={p.owners} value={v('ownerId')} /></Field>
         <Field error={err('contractCode')} label="Contrato (locação)">{text('contractCode', { placeholder: 'POA004871-26' })}</Field>
         <Field label="Detalhamento" span><textarea className="input min-h-20 py-2" name="details" defaultValue={v('details')} /></Field>
       </section>

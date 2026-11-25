@@ -51,7 +51,7 @@ export const caseFormSchema = z
       add('contractCode', 'Contrato no formato AAA000000-00 (ex.: POA004871-26).');
     }
     if (d.portfolio === 'civil') {
-      if (!d.ownerId) add('ownerId', 'Informe a advogada responsável.');
+      if (!d.ownerId) add('ownerId', 'Informe o(a) advogado(a) responsável.');
       if (!d.subjectId) add('subjectId', 'Informe o objeto.');
       if (!d.prognosis) add('prognosis', 'Informe o prognóstico.');
       if (d.riskTotal === null) add('riskTotal', 'Informe o valor de risco.');

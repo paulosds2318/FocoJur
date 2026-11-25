@@ -23,7 +23,7 @@ export type ImportConfig = { sheets: SheetConfig[] };
 /** Campos que a planilha pode alimentar, na ordem da tela de mapeamento. */
 export const FIELDS: { key: string; label: string; required?: boolean }[] = [
   { key: 'number', label: 'Número do processo', required: true },
-  { key: 'owner', label: 'Advogada responsável' }, { key: 'system', label: 'Sistema / portal' }, { key: 'courtType', label: 'Foro / esfera' },
+  { key: 'owner', label: 'Advogado(a) responsável' }, { key: 'system', label: 'Sistema / portal' }, { key: 'courtType', label: 'Foro / esfera' },
   { key: 'state', label: 'UF' }, { key: 'city', label: 'Comarca / cidade' }, { key: 'court', label: 'Vara / órgão' },
   { key: 'plaintiff', label: 'Demandante' }, { key: 'subject', label: 'Objeto' }, { key: 'claim', label: 'Pedido' },
   { key: 'status', label: 'Status do processo' }, { key: 'active', label: 'Ativo (sim/não)' },

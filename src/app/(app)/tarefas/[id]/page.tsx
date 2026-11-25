@@ -12,7 +12,7 @@ import { STATUS_LABEL } from '@/server/tasks';
 import { listUsers } from '@/server/users';
 import { updateTaskAction } from '../actions';
 
-const ORIGIN = { manual: 'Cadastrada à mão', ai_suggestion: 'Criada a partir de sugestão da IA (confirmada por uma advogada)', migration: 'Migrada do Planner' } as const;
+const ORIGIN = { manual: 'Cadastrada à mão', ai_suggestion: 'Criada a partir de sugestão da IA (confirmada por um(a) advogado(a))', migration: 'Migrada do Planner' } as const;
 
 export default async function EditarTarefaPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await requireUser();

@@ -98,7 +98,7 @@ export default async function ListasPage({ searchParams }: { searchParams: Promi
             <strong className="text-ai">Descrição de cada item:</strong> a IA lê esse texto na Triagem para escolher objeto, pedido e tipo de tarefa e para sugerir o prazo.
             Escreva <strong>quando usar o item</strong>
             {isTask ? <> e, nos tipos de tarefa, o <strong>prazo legal e a forma de contagem</strong>, se houver (ex.: “Contestação: 15 dias úteis a partir da juntada do mandado de citação”)</> : <> (ex.: situações em que se aplica e em que não se aplica)</>}.
-            A IA só sugere; o prazo final é calculado pelo sistema e confirmado por uma advogada. Não coloque dados de pessoas.
+            A IA só sugere; o prazo final é calculado pelo sistema e confirmado por um(a) advogado(a). Não coloque dados de pessoas.
           </div>
           <ActionForm action={addLookupAction} submitLabel="Adicionar" className="flex flex-col gap-2">
             <input type="hidden" name="type" value={type} />

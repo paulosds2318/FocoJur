@@ -22,7 +22,7 @@ const VALUE: Record<string, Record<string, string>> = {
   prognosis: { probable: 'Provável', possible: 'Possível', remote: 'Remoto' },
   triage: { task_created: 'Criou tarefa (alerta lido)', discarded: 'Ignorado', linked: 'Lido', pending: 'Pendente' },
   origin: { manual: 'Cadastrada à mão', ai_suggestion: 'Sugestão da IA', migration: 'Migração' },
-  role: { admin: 'Administrador', lawyer: 'Advogada', viewer: 'Leitura' },
+  role: { admin: 'Administrador', lawyer: 'Advogado(a)', viewer: 'Leitura' },
   kind: { name: 'Nome da parte', lawyer: 'Advogado', oab: 'OAB', cnpj: 'CNPJ', digital: 'Digital', physical: 'Físico' },
   decision: { accepted: 'Aceita', edited: 'Ajustada', rejected: 'Recusada' },
 };

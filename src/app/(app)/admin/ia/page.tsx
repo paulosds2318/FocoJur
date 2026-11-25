@@ -64,7 +64,7 @@ export default async function AdminIAPage() {
             );
           })}
         </div>
-        <p className="text-[13px] text-text-muted">Aceite = sugestões confirmadas pelas advogadas sem correção. É o principal indicador de qualidade do modelo.</p>
+        <p className="text-[13px] text-text-muted">Aceite = sugestões confirmadas pelos(as) advogados(as) sem correção. É o principal indicador de qualidade do modelo.</p>
       </section>
 
       <CompareForm models={catalog.map((m) => ({ id: m.modelId, name: m.name }))} />

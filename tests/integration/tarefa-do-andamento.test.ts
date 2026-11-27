@@ -43,7 +43,7 @@ afterAll(async () => {
 
 async function andamento(id: string, vinculado = true) {
   const { ingestMovement } = await import('@/server/movements');
-  const r = await ingestMovement({ source: 'djen', externalId: `TESTE-ANDAMENTO-${id}`, caseNumber: vinculado ? NUM : null, occurredAt: new Date('2026-12-01T12:00:00Z'), title: 'Intimação', rawText: 'Intimação para contestar.' });
+  const r = await ingestMovement({ source: 'djen', externalId: `TESTE-ANDAMENTO-${id}`, caseNumber: vinculado ? NUM : null, occurredAt: new Date('2026-12-01T12:00:00Z'), title: 'Intimação', rawText: `Intimação para contestar. (${id})` });
   return r.id;
 }
 
@@ -103,7 +103,7 @@ describe('criar tarefa a partir do andamento', () => {
     await andamento('tl-pendente');
     await createTaskFromMovement(adminId, comTarefa, { title: 'Contestação linha do tempo', dueDate: '2026-12-22' });
     await markMovementsRead(adminId, [lido]);
-    const lista = (await listCaseMovements(caseId)).filter((m) => m.rawText === 'Intimação para contestar.');
+    const lista = (await listCaseMovements(caseId)).filter((m) => m.rawText?.startsWith('Intimação para contestar.'));
     const por = (id: string) => lista.find((m) => m.id === id)!;
     expect(por(comTarefa)).toMatchObject({ status: 'task_created', taskTitle: 'Contestação linha do tempo', taskDue: '2026-12-22' });
     expect(por(comTarefa).taskId).toBeTruthy();

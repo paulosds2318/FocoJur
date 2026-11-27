@@ -1,0 +1,1 @@
+ALTER TABLE "movement" ADD COLUMN "updated_task_id" uuid;

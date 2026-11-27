@@ -18,7 +18,7 @@ const DAY = /^\d{4}-\d{2}-\d{2}$/;
 const startOf = (d: string) => new Date(`${d}T00:00:00-03:00`);
 
 const sug = (col: string) => sql.raw(`(select d.${col} from deadline_suggestion d where d.movement_id = "movement"."id" and d.decision is null order by d.created_at desc limit 1)`);
-const task = (col: string) => sql.raw(`(select t.${col} from task t where t.movement_id = "movement"."id" order by t.created_at desc limit 1)`);
+const task = (col: string) => sql.raw(`(select t.${col} from task t where (t.movement_id = "movement"."id" or t.id = "movement"."updated_task_id") order by t.created_at desc limit 1)`);
 
 const columns = () => ({
   id: movement.id, source: movement.source, occurredAt: movement.occurredAt, title: movement.title, rawText: movement.rawText,
@@ -28,6 +28,7 @@ const columns = () => ({
   sugId: sql<string | null>`${sug('id')}`, sugAct: sql<string | null>`${sug('act_type')}`, sugDays: sql<number | null>`${sug('days')}`,
   sugCount: sql<string | null>`${sug('day_count')}`, sugDue: sql<string | null>`${sug('due_date')}`, sugBasis: sql<string | null>`${sug('legal_basis')}`,
   sugConf: sql<string | null>`${sug('confidence')}`,
+  taskUpdated: sql<boolean>`${movement.updatedTaskId} is not null`,
   taskId: sql<string | null>`${task('id')}`, taskTitle: sql<string | null>`${task('title')}`,
   taskDue: sql<string | null>`${task('due_date')}`, taskInternalDue: sql<string | null>`${task('internal_due_date')}`,
 });
@@ -101,6 +102,7 @@ export async function alertHistory(id: string) {
 export function describeAlertEvent(diff: unknown): string {
   const after = ((diff ?? {}) as { after?: Record<string, unknown>; reason?: string }).after ?? {};
   const d = (diff ?? {}) as { reason?: string };
+  if (after.triage === 'task_created' && after.updatedExisting) return 'Atualizou a tarefa que já existia e o alerta ficou como lido';
   if (after.triage === 'task_created') return 'Criou a tarefa e o alerta ficou como lido';
   if (after.triage === 'discarded' || d.reason) return `Ignorou${d.reason ? `: ${d.reason}` : ''}`;
   if (after.caseId) return 'Vinculou a um processo';

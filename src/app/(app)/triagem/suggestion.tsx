@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { ActionForm } from '@/components/action-form';
 import { AssigneePicker } from '@/components/assignee-picker';
 import { SelectHint } from '@/components/select-hint';
-import { createTaskFromMovementAction, decideAction, discardOneAction, linkAction } from './actions';
+import { createTaskFromMovementAction, decideAction, discardOneAction, linkAction, updateTaskFromMovementAction } from './actions';
 
 export type SuggestionProps = {
   movementId: string; suggestionId: string | null; act: string | null; days: number | null; dayCount: string | null;
@@ -87,5 +87,23 @@ export function TaskBox({ movementId, defaultTitle, types, owners, alwaysOpen = 
         </ActionForm>
       )}
     </div>
+  );
+}
+
+/** Processo com tarefa aberta: escolher a tarefa e, se o prazo mudou, informar o novo (em branco = mantém). */
+export function UpdateTaskBox({ movementId, tasks }: { movementId: string; tasks: { id: string; label: string }[] }) {
+  return (
+    <ActionForm action={updateTaskFromMovementAction} submitLabel="Atualizar tarefa" className="grid gap-3 rounded-control bg-bg p-3 sm:grid-cols-2">
+      <input type="hidden" name="movementId" value={movementId} />
+      <label className="flex flex-col gap-1 sm:col-span-2"><span className="label">Tarefa existente</span>
+        <select className="input" name="taskId" defaultValue={tasks[0]?.id}>{tasks.map((t) => <option key={t.id} value={t.id}>{t.label}</option>)}</select></label>
+      <label className="flex flex-col gap-1"><span className="label">Novo prazo limite (opcional)</span><input className="input" type="date" name="dueDate" /></label>
+      <label className="flex flex-col gap-1"><span className="label">Novo prazo interno (opcional)</span><input className="input" type="date" name="internalDueDate" /></label>
+      <div className="flex items-end gap-2">
+        <label className="flex flex-col gap-1"><span className="label">ou calcular: dias</span><input className="input w-24" type="number" min={1} max={365} name="days" placeholder="15" /></label>
+        <select className="input w-32" name="dayCount" defaultValue="business" aria-label="Contagem"><option value="business">úteis</option><option value="calendar">corridos</option></select>
+      </div>
+      <p className="text-xs text-text-muted sm:col-span-2">Em branco, os prazos da tarefa ficam como estão e o alerta só é dado como tratado. Os dias contam a partir da data da publicação.</p>
+    </ActionForm>
   );
 }

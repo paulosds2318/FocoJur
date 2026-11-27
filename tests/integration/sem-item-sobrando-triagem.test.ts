@@ -43,6 +43,24 @@ describe('ingestMovement: a mesma publicação batendo em dois termos não sobra
   });
 });
 
+describe('ingestMovement: a mesma atualização com outro id não vira segundo alerta', () => {
+  it('mesmo processo, mesma data e mesmo texto: não cria; texto ou data diferente: cria', async () => {
+    const { db } = await import('@/db');
+    const { cases } = await import('@/db/schema/case');
+    const { movement } = await import('@/db/schema/movement');
+    await db.insert(cases).values({ number: NUM, portfolio: 'civil', monitoring: true }).onConflictDoNothing();
+    const { ingestMovement } = await import('@/server/movements');
+    const dia = new Date('2026-11-20T15:00:00Z');
+    const base = { source: 'djen' as const, caseNumber: NUM, occurredAt: dia, rawText: 'Intimação repetida' };
+
+    expect(await ingestMovement({ ...base, externalId: `${TAG}-r1` })).toMatchObject({ created: true });
+    expect(await ingestMovement({ ...base, externalId: `${TAG}-r2` })).toMatchObject({ created: false, linked: true });
+    expect(await ingestMovement({ ...base, externalId: `${TAG}-r3`, rawText: 'Outra intimação' })).toMatchObject({ created: true });
+    expect(await ingestMovement({ ...base, externalId: `${TAG}-r4`, occurredAt: new Date('2026-11-21T15:00:00Z') })).toMatchObject({ created: true });
+    expect(await db.select().from(movement).where(like(movement.externalId, `${TAG}-r%`))).toHaveLength(3);
+  });
+});
+
 describe('addInboxItem: DJEN e Projuris para o mesmo processo entram na MESMA linha da Triagem', () => {
   it('Projuris chegando depois do DJEN (ou vice-versa) agrupa no item que já existe, não cria outro', async () => {
     const { addInboxItem } = await import('@/server/inbox');

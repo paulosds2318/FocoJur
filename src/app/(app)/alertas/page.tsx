@@ -9,9 +9,9 @@ import { parsePage } from '@/lib/pagination';
 import { alertHistory, alertTotals, daysPending, describeAlertEvent, getAlert, listAlerts, type AlertRow, type AlertView } from '@/server/alerts';
 import { ownersForReview } from '@/server/inbox';
 import { getLookups } from '@/server/lookups';
-import { DISCARD_REASONS, localHolidayWarnings } from '@/server/movements';
+import { DISCARD_REASONS, localHolidayWarnings, openTasksForAlert } from '@/server/movements';
 import { batchAction } from '../triagem/actions';
-import { DiscardBox, LinkBox, SuggestionBox, TaskBox } from '../triagem/suggestion';
+import { DiscardBox, LinkBox, SuggestionBox, TaskBox, UpdateTaskBox } from '../triagem/suggestion';
 
 type SP = Record<string, string | string[] | undefined>;
 const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v) ?? '';
@@ -43,6 +43,7 @@ export default async function AlertasPage({ searchParams }: { searchParams: Prom
   const wanted = one(sp.item);
   const sel = rows.find((r) => r.id === wanted) ?? (view === 'pending' || !wanted ? rows[0] : null) ?? (wanted ? await getAlert(wanted) : null);
   const history = sel ? await alertHistory(sel.id) : [];
+  const openTasks = sel?.caseId && sel.status === 'pending' ? await openTasksForAlert(sel.caseId) : [];
 
   const chip = (on: boolean) => `inline-flex min-h-9 items-center rounded-full border px-3.5 text-sm font-bold no-underline ${on ? 'border-text bg-text text-on-text hover:text-on-text' : 'border-input-border bg-surface text-soft'}`;
   const base = { vista: view === 'pending' ? '' : view, fonte: f.source, uf: f.state, carteira: f.portfolio, semprocesso: f.unlinked ? '1' : '', comprazo: f.withSuggestion ? '1' : '', desfecho: f.outcome, por: f.decidedBy, de: f.from, ate: f.to };
@@ -53,6 +54,7 @@ export default async function AlertasPage({ searchParams }: { searchParams: Prom
     return q ? `/alertas?${q}` : '/alertas';
   };
   const handled = view !== 'pending';
+  const atualizada = one(sp.atualizada) === '1';
   const criada = /^\d{4}-\d{2}-\d{2}$/.test(one(sp.criada)) ? one(sp.criada) : '';
 
   return (
@@ -66,6 +68,8 @@ export default async function AlertasPage({ searchParams }: { searchParams: Prom
       </header>
 
       {criada && <p role="status" className="rounded-control bg-ok-bg px-3.5 py-2.5 text-sm font-bold text-ok">Tarefa criada com prazo limite em {dateBr(criada)}. O alerta ficou como lido.</p>}
+
+      {atualizada && <p role="status" className="rounded-control bg-ok-bg px-3.5 py-2.5 text-sm font-bold text-ok">Tarefa existente atualizada. O alerta ficou como lido.</p>}
 
       <div className="flex flex-wrap items-center gap-2">
         <div role="group" aria-label="Situação dos alertas" className="flex flex-wrap gap-2">
@@ -156,7 +160,7 @@ export default async function AlertasPage({ searchParams }: { searchParams: Prom
                   <div className="text-xs font-extrabold text-text-muted">Decisão</div>
                   {sel.status === 'task_created' && (
                     <p>
-                      <strong>Tarefa criada</strong>{sel.taskTitle ? <>: {sel.taskId ? <Link className="font-bold" href={`/tarefas/${sel.taskId}`}>{sel.taskTitle}</Link> : sel.taskTitle}</> : ''}
+                      <strong>{sel.taskUpdated ? 'Tarefa existente atualizada' : 'Tarefa criada'}</strong>{sel.taskTitle ? <>: {sel.taskId ? <Link className="font-bold" href={`/tarefas/${sel.taskId}`}>{sel.taskTitle}</Link> : sel.taskTitle}</> : ''}
                       {sel.taskDue ? <> · prazo limite {dateBr(sel.taskDue)}</> : ''}{sel.taskInternalDue ? <> · prazo interno {dateBr(sel.taskInternalDue)}</> : ''}.
                     </p>
                   )}
@@ -182,10 +186,18 @@ export default async function AlertasPage({ searchParams }: { searchParams: Prom
                     dueLabel={dateBr(sel.sugDue)} basis={sel.sugBasis} confidence={sel.sugConf ? Number(sel.sugConf) : null} warn={warnFor(sel.state)}
                   />
                   {sel.caseId ? (
-                    <div className="flex flex-col gap-2 border-t border-border pt-3">
-                      <h3 className="text-sm font-extrabold">Criar tarefa</h3>
-                      <TaskBox alwaysOpen back="alertas" movementId={sel.id} defaultTitle={sel.sugAct ?? sel.title ?? ''} types={types} owners={owners} />
-                    </div>
+                    <>
+                      {openTasks.length > 0 && (
+                        <div className="flex flex-col gap-2 border-t border-border pt-3">
+                          <h3 className="text-sm font-extrabold">Este processo já tem tarefa aberta: atualizar a existente</h3>
+                          <UpdateTaskBox movementId={sel.id} tasks={openTasks.map((t) => ({ id: t.id, label: `${t.title}${t.dueDate ? ` · prazo ${dateBr(t.dueDate)}` : ''}` }))} />
+                        </div>
+                      )}
+                      <div className="flex flex-col gap-2 border-t border-border pt-3">
+                        <h3 className="text-sm font-extrabold">{openTasks.length > 0 ? 'Ou criar uma nova tarefa' : 'Criar tarefa'}</h3>
+                        <TaskBox alwaysOpen back="alertas" movementId={sel.id} defaultTitle={sel.sugAct ?? sel.title ?? ''} types={types} owners={owners} />
+                      </div>
+                    </>
                   ) : (
                     <div className="flex flex-col gap-2 border-t border-border pt-3">
                       <p className="text-xs text-text-muted">Para criar tarefa, vincule este alerta a um processo cadastrado.</p>

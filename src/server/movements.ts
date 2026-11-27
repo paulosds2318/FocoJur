@@ -10,7 +10,7 @@ import { addBusinessDays, addCalendarDays, addDays, todayInSaoPaulo } from '@/li
 import { markAccepted, runAiTask } from '@/lib/ai';
 import { canonicalOption, optionLines } from '@/lib/ai/options';
 import { getLookups } from './lookups';
-import { createTask, getHolidaySet, internalDateFor, statesWithLocalCalendar, type HolidayCtx } from './tasks';
+import { checkInternalDue, createTask, getHolidaySet, internalDateFor, statesWithLocalCalendar, type HolidayCtx } from './tasks';
 
 export type MovementSource = 'djen' | 'domicilio' | 'datajud' | 'portal' | 'projuris';
 
@@ -36,6 +36,13 @@ export async function ingestMovement(i: {
     // não virar processo novo na Triagem.
     if (c && !c.monitoring) return { id: '', created: false, linked: true, skipped: 'monitoring_off' as const };
     caseId = c?.id ?? null;
+  }
+  // o DJEN publica a mesma intimação uma vez por destinatário (ids diferentes, mesmo texto e data): se o processo já tem essa
+  // atualização, não vira um segundo alerta (pedido de 27/11/2026)
+  if (caseId) {
+    const [same] = await db.select({ id: movement.id }).from(movement)
+      .where(and(eq(movement.caseId, caseId), eq(movement.rawText, i.rawText), sql`(${movement.occurredAt} at time zone 'America/Sao_Paulo')::date = (${i.occurredAt.toISOString()}::timestamptz at time zone 'America/Sao_Paulo')::date`)).limit(1);
+    if (same) return { id: same.id, created: false, linked: true };
   }
   const [row] = await db
     .insert(movement)
@@ -147,9 +154,9 @@ export async function listCaseMovements(caseId: string) {
       id: movement.id, source: movement.source, occurredAt: movement.occurredAt, title: movement.title, rawText: movement.rawText,
       aiSummary: movement.aiSummary, status: movement.triageStatus, discardReason: movement.discardReason, readAt: movement.readAt,
       readerName: sql<string | null>`(select name from "user" where id = ${movement.readBy})`,
-      taskId: sql<string | null>`(select t.id from task t where t.movement_id = "movement"."id" order by t.created_at desc limit 1)`,
-      taskTitle: sql<string | null>`(select t.title from task t where t.movement_id = "movement"."id" order by t.created_at desc limit 1)`,
-      taskDue: sql<string | null>`(select t.due_date from task t where t.movement_id = "movement"."id" order by t.created_at desc limit 1)`,
+      taskId: sql<string | null>`(select t.id from task t where (t.movement_id = "movement"."id" or t.id = "movement"."updated_task_id") order by t.created_at desc limit 1)`,
+      taskTitle: sql<string | null>`(select t.title from task t where (t.movement_id = "movement"."id" or t.id = "movement"."updated_task_id") order by t.created_at desc limit 1)`,
+      taskDue: sql<string | null>`(select t.due_date from task t where (t.movement_id = "movement"."id" or t.id = "movement"."updated_task_id") order by t.created_at desc limit 1)`,
     })
     .from(movement)
     .where(eq(movement.caseId, caseId))
@@ -232,6 +239,49 @@ export async function createTaskFromMovement(actorId: string, movementId: string
   await db.update(movement).set({ triageStatus: 'task_created', readBy: actorId, readAt: new Date() }).where(eq(movement.id, movementId));
   await audit({ actorId, entity: 'movement', entityId: movementId, action: 'update', diff: { after: { triage: 'task_created', taskId: res.id, dueDate: due } } });
   return { ok: true as const, taskId: res.id, dueDate: due };
+}
+
+/** Tarefas abertas do processo do alerta, para a advogada escolher entre criar outra ou atualizar uma que já existe. */
+export async function openTasksForAlert(caseId: string) {
+  return db.select({ id: task.id, title: task.title, dueDate: task.dueDate, internalDueDate: task.internalDueDate })
+    .from(task).where(and(eq(task.caseId, caseId), sql`${task.status} not in ('done','cancelled')`)).orderBy(task.dueDate);
+}
+
+/**
+ * Atualiza uma tarefa que já existe no processo com a nova publicação: muda só o que vier preenchido (prazo limite, interno ou
+ * "N dias" contados da publicação, com o calendário do sistema) e marca o alerta como tratado, ligado a essa tarefa.
+ */
+export async function applyMovementToTask(actorId: string, movementId: string, taskId: string, raw: Record<string, string>) {
+  const [m] = await db.select().from(movement).where(and(eq(movement.id, movementId), eq(movement.triageStatus, 'pending')));
+  if (!m) return { ok: false as const, error: 'Este alerta já foi tratado.' };
+  if (!m.caseId) return { ok: false as const, error: 'Vincule o alerta a um processo antes de atualizar uma tarefa.' };
+  const [t] = await db.select().from(task).where(and(eq(task.id, taskId), eq(task.caseId, m.caseId)));
+  if (!t || t.status === 'done' || t.status === 'cancelled') return { ok: false as const, error: 'Escolha uma tarefa aberta deste processo.' };
+
+  let due = (raw.dueDate ?? '').trim() || null;
+  if (raw.days?.trim()) {
+    const days = Number(raw.days);
+    if (!Number.isInteger(days) || days < 1 || days > 365) return { ok: false as const, error: 'Dias do prazo: informe um número entre 1 e 365.' };
+    const [c] = await db.select({ state: cases.state, city: cases.city, court: cases.court }).from(cases).where(eq(cases.id, m.caseId));
+    due = await computeDueDate(m.occurredAt.toISOString().slice(0, 10), days, raw.dayCount === 'calendar' ? 'calendar' : 'business', c);
+  }
+  const internal = (raw.internalDueDate ?? '').trim() || null;
+  if (due && !/^\d{4}-\d{2}-\d{2}$/.test(due)) return { ok: false as const, error: 'Prazo limite inválido.' };
+  const newDue = due ?? t.dueDate;
+  const newInternal = internal ?? (due && t.internalDueDate && t.internalDueDate > due ? due : t.internalDueDate);
+  const err = checkInternalDue(newDue, newInternal);
+  if (err) return { ok: false as const, error: err };
+
+  const diff: Record<string, { before: unknown; after: unknown }> = {};
+  if (newDue !== t.dueDate) diff.dueDate = { before: t.dueDate, after: newDue };
+  if (newInternal !== t.internalDueDate) diff.internalDueDate = { before: t.internalDueDate, after: newInternal };
+  if (Object.keys(diff).length) {
+    await db.update(task).set({ dueDate: newDue, internalDueDate: newInternal }).where(eq(task.id, t.id));
+    await audit({ actorId, entity: 'task', entityId: t.id, action: 'update', diff: { ...diff, movementId } });
+  }
+  await db.update(movement).set({ triageStatus: 'task_created', updatedTaskId: t.id, readBy: actorId, readAt: new Date() }).where(eq(movement.id, movementId));
+  await audit({ actorId, entity: 'movement', entityId: movementId, action: 'update', diff: { after: { triage: 'task_created', taskId: t.id, updatedExisting: true } } });
+  return { ok: true as const, taskId: t.id, changed: Object.keys(diff).length > 0 };
 }
 
 /** Aviso "conferir feriados locais": vale para processos de UF sem calendário local cadastrado (ou sem UF). */

@@ -21,6 +21,7 @@ export const movement = pgTable(
     aiSummary: text('ai_summary'),
     triageStatus: text('triage_status').$type<'pending' | 'linked' | 'task_created' | 'discarded'>().notNull().default('pending'),
     discardReason: text('discard_reason'),
+    updatedTaskId: uuid('updated_task_id'), // tarefa que já existia e foi atualizada por este alerta (sem FK: task importa movement)
     matchedTermId: uuid('matched_term_id'),
     readBy: text('read_by').references(() => user.id),
     readAt: ts('read_at'),

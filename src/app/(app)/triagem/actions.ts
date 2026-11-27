@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import type { ActionState } from '@/components/action-form';
 import { requireRole } from '@/lib/auth/session';
-import { createTaskFromMovement, decideSuggestion, discardMovements, linkMovement } from '@/server/movements';
+import { applyMovementToTask, createTaskFromMovement, decideSuggestion, discardMovements, linkMovement } from '@/server/movements';
 
 const refresh = () => { revalidatePath('/alertas'); revalidatePath('/triagem'); revalidatePath('/inicio'); };
 const ids = (fd: FormData) => fd.getAll('ids').map(String).filter(Boolean);
@@ -38,6 +38,17 @@ export async function createTaskFromMovementAction(_: ActionState, fd: FormData)
   refresh();
   revalidatePath('/tarefas');
   redirect(raw.back === 'alertas' ? `/alertas?criada=${res.dueDate}` : `/tarefas?criada=${res.dueDate}`);
+}
+
+/** O processo já tem tarefa: em vez de criar outra, atualiza os prazos da que existe. */
+export async function updateTaskFromMovementAction(_: ActionState, fd: FormData): Promise<ActionState> {
+  const s = await requireRole('admin', 'lawyer');
+  const raw = Object.fromEntries([...fd.entries()].map(([k, v]) => [k, typeof v === 'string' ? v : '']));
+  const res = await applyMovementToTask(s.user.id, String(fd.get('movementId')), String(fd.get('taskId') ?? ''), raw);
+  if (!res.ok) return { error: res.error };
+  refresh();
+  revalidatePath('/tarefas');
+  redirect('/alertas?atualizada=1');
 }
 
 export async function discardOneAction(_: ActionState, fd: FormData): Promise<ActionState> {

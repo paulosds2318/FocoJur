@@ -1,8 +1,8 @@
-import { and, desc, eq, isNotNull, isNull } from 'drizzle-orm';
+import { and, desc, eq, inArray, isNotNull, isNull } from 'drizzle-orm';
 import { db } from '@/db';
 import { user } from '@/db/schema';
 import { cases } from '@/db/schema/case';
-import { connectorRun, monitoredTerm, nameDecision } from '@/db/schema/inbox';
+import { connectorRun, inboxItem, monitoredTerm, nameDecision } from '@/db/schema/inbox';
 import { sendMail } from '@/lib/mail';
 import { addInboxItem } from '@/server/inbox';
 import { getDjenIntervalHours } from '@/server/settings';
@@ -11,7 +11,8 @@ import { enrichMovementWithAI, ingestMovement } from '@/server/movements';
 import { normalizeCaseNumber } from '@/lib/case-number';
 import { datajud, expandMovements, movementCutoff } from './datajud';
 import { djen } from './djen';
-import { domicilio, projuris } from './stubs';
+import { domicilio } from './stubs';
+import { projuris } from './projuris';
 import type { Connector, ConnectorContext } from './types';
 
 export const CONNECTORS = { djen, datajud, domicilio, projuris } as const;
@@ -38,10 +39,15 @@ export async function runConnector(c: Connector, opts: { fetchFn?: typeof fetch;
       .where(and(eq(connectorRun.connector, c.name), eq(connectorRun.status, 'ok'), isNotNull(connectorRun.cursor))).orderBy(desc(connectorRun.startedAt)).limit(1);
     const terms = (await db.select().from(monitoredTerm).where(eq(monitoredTerm.active, true))).filter((t) => !opts.termFilter || opts.termFilter(t));
     const monitored = await db.select({ n: cases.number }).from(cases).where(and(eq(cases.monitoring, true), isNull(cases.closedAt), isNull(cases.deletedAt)));
+    // números ainda esperando a Triagem (sem processo confirmado): assim uma atualização que chegar nesse meio tempo não se perde,
+    // ela entra junto do item que já está lá (ver addInboxItem)
+    const pending = await db.select({ n: inboxItem.caseNumber }).from(inboxItem).where(inArray(inboxItem.status, ['new', 'in_review', 'possible_duplicate']));
     const ctx: ConnectorContext = {
       terms: terms.map((t) => ({ id: t.id, term: t.term, kind: t.kind, document: t.document })),
       rejectedNames: (await db.select().from(nameDecision).where(eq(nameDecision.decision, 'rejected'))).map((d) => d.displayName),
-      monitoredNumbers: opts.termFilter ? [] : monitored.map((m) => m.n), /* busca de UM termo não varre os processos monitorados */ fetchFn: opts.fetchFn ?? fetch, now: opts.now ?? new Date(), explicitSince: opts.since, sleep: opts.sleep,
+      monitoredNumbers: opts.termFilter ? [] : monitored.map((m) => m.n), /* busca de UM termo não varre os processos monitorados */
+      pendingNumbers: opts.termFilter ? [] : pending.map((m) => m.n).filter((n): n is string => !!n),
+      fetchFn: opts.fetchFn ?? fetch, now: opts.now ?? new Date(), explicitSince: opts.since, sleep: opts.sleep,
       lastRunAt: last?.finishedAt ?? null, intervalHours: await getDjenIntervalHours(),
     };
     const { items, nextCursor, errors } = await c.fetchSince(last?.cursor ?? null, ctx);
@@ -55,7 +61,7 @@ export async function runConnector(c: Connector, opts: { fetchFn?: typeof fetch;
       const movs = c.name === 'datajud' ? expandMovements(item, cutoff) : [c.toMovement?.(item, ctx)].filter((m): m is NonNullable<typeof m> => !!m);
       let handled = false;
       for (const m of movs) {
-        const r = await ingestMovement(justCreated.has(normalizeCaseNumber(m.caseNumber)) ? { ...m, alreadyRead: { by: null } } : m);
+        const r = await ingestMovement(justCreated.has(normalizeCaseNumber(m.caseNumber)) || m.alreadyRead ? { ...m, alreadyRead: m.alreadyRead ?? { by: null } } : m);
         if (r.linked) handled = true;
         if (r.created && r.linked) { created++; newMovements.push(r.id); }
         else if (r.created) await removeUnlinkedIfInbox(c, r.id, handled);

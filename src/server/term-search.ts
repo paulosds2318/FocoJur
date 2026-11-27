@@ -30,6 +30,12 @@ export async function markSearchPending(termId: string, hours?: number) {
 export async function runTermSearch(termId: string, hours?: number, deps: { fetchFn?: typeof fetch; now?: Date } = {}) {
   const [t] = await db.select().from(monitoredTerm).where(eq(monitoredTerm.id, termId));
   if (!t || !t.active) return { status: 'skipped' as const };
+  // DJEN pausado por decisão de 27/11/2026 (Projuris é a fonte por enquanto); DJEN_ENABLED=false também vale para a
+  // busca manual de um termo (Monitoramento), senão o botão "Rodar agora" chamaria o DJEN mesmo pausado.
+  if ((process.env.DJEN_ENABLED ?? 'true') === 'false') {
+    await db.update(monitoredTerm).set({ searchStatus: 'ok', searchFinishedAt: new Date(), searchFound: 0, searchNew: 0, searchError: null }).where(eq(monitoredTerm.id, termId));
+    return { status: 'ok' as const, found: 0, created: 0 };
+  }
   const h = await resolveHours(hours ?? t.searchHours);
   const now = deps.now ?? new Date();
   await db.update(monitoredTerm).set({ searchStatus: 'running', searchHours: h, searchError: null }).where(eq(monitoredTerm.id, termId));

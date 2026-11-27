@@ -4,6 +4,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 // estes testes cobrem a Triagem: o que vem do DJEN vai para ela (o cadastro direto em Processos é testado em djen-processo-direto.test.ts)
 process.env.DJEN_AUTO_REGISTER = 'false';
+process.env.DJEN_ENABLED = 'true'; // testa a busca de termo de verdade, independente do DJEN estar pausado no ambiente (ver docs/CLAUDE.md)
 
 /**
  * Busca em segundo plano ao criar/ativar um termo + paginação da caixa de entrada.
@@ -145,7 +146,7 @@ describe('caixa de entrada paginada', () => {
   it('divide em páginas de 25, na ordem, sem repetir nem perder item, e busca por número', async () => {
     const { addInboxItem, listInbox, INBOX_PAGE_SIZE } = await import('@/server/inbox');
     const { djen } = await import('@/lib/connectors/djen');
-    const ctx = { terms: [{ id: 'x', term: termo, kind: 'name' as const, document: null }], rejectedNames: [], monitoredNumbers: [], fetchFn: fetch, now: new Date() };
+    const ctx = { terms: [{ id: 'x', term: termo, kind: 'name' as const, document: null }], rejectedNames: [], monitoredNumbers: [], pendingNumbers: [], fetchFn: fetch, now: new Date() };
     for (let n = 100; n < 160; n++) {
       const input = djen.toInbox!({ ...item(`bt-p${n}`, n), _termKind: 'name', _term: termo }, ctx)!;
       await addInboxItem(input);

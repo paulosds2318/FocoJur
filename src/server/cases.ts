@@ -161,12 +161,13 @@ export async function getCase(id: string) {
 // ---------- escrita ----------
 export async function createCase(actorId: string, d: CaseForm): Promise<{ ok: true; id: string } | { ok: false; error: string }> {
   const number = normalizeCaseNumber(d.number);
+  // um número nunca pode virar dois processos, mesmo em carteira diferente (RF-104/regra do CNJ: o número já identifica o processo real)
   const [dup] = await db
     .select({ id: cases.id })
     .from(cases)
-    .where(and(eq(cases.number, number), eq(cases.portfolio, d.portfolio), isNull(cases.deletedAt)))
+    .where(and(eq(cases.number, number), isNull(cases.deletedAt)))
     .limit(1);
-  if (dup) return { ok: false, error: 'Já existe um processo com esse número nessa carteira.' };
+  if (dup) return { ok: false, error: 'Já existe um processo com esse número (pode estar em outra carteira).' };
 
   const id = await db.transaction(async (tx) => {
     const [c] = await tx

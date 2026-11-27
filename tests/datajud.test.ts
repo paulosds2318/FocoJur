@@ -11,7 +11,7 @@ const ok = (hits: object[] = [], shards: object = { total: 20, failed: 0 }) =>
 const hit = (n: string) => ({ _source: { numeroProcesso: n, movimentos: [{ codigo: 1, nome: 'Juntada', dataHora: '2026-11-17T10:00:00.000Z' }] } });
 
 function ctxWith(numbers: string[], fetchFn: typeof fetch, sleeps: number[] = []): ConnectorContext {
-  return { terms: [], rejectedNames: [], monitoredNumbers: numbers, fetchFn, sleep: async (ms) => { sleeps.push(ms); }, now: new Date('2026-11-18T12:00:00Z') };
+  return { terms: [], rejectedNames: [], monitoredNumbers: numbers, pendingNumbers: [], fetchFn, sleep: async (ms) => { sleeps.push(ms); }, now: new Date('2026-11-18T12:00:00Z') };
 }
 
 const saved = { key: process.env.DATAJUD_API_KEY, batch: process.env.DATAJUD_BATCH_SIZE, max: process.env.DATAJUD_MAX_REQUESTS };

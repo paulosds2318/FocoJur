@@ -124,7 +124,7 @@ export default async function FichaPage({
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="flex flex-wrap items-center gap-2">
                     <strong className="text-sm">{m.title ?? 'Andamento'}</strong>
-                    <span className="badge b-gray">{{ djen: 'DJEN', domicilio: 'Domicílio', datajud: 'DataJud', portal: 'Portal' }[m.source]}</span>
+                    <span className="badge b-gray">{{ djen: 'DJEN', domicilio: 'Domicílio', datajud: 'DataJud', portal: 'Portal', projuris: 'Projuris' }[m.source]}</span>
                     <span className={`badge ${st[1]}`}>{st[0]}</span>
                   </div>
                   <span className="text-xs text-text-muted">{dateTimeBr(m.occurredAt)}</span>

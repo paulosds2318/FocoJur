@@ -14,14 +14,3 @@ export const domicilio: Connector = {
     throw new Error('Conector do Domicílio Judicial ainda não implementado: depende do acesso por sistema e da credencial da Foco (questão 7 do PRD).');
   },
 };
-
-export const projuris: Connector = {
-  name: 'projuris',
-  isConfigured: () =>
-    process.env.PROJURIS_API_URL && process.env.PROJURIS_API_TOKEN
-      ? { ok: true }
-      : { ok: false, reason: 'O contrato do Projuris inclui API? Sem resposta (questão 1 do PRD), a entrada é por importação em lote Excel/CSV.' },
-  async fetchSince() {
-    throw new Error('Conector da API do Projuris ainda não implementado: depende do contrato incluir API (questão 1 do PRD).');
-  },
-};

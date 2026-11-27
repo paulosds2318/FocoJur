@@ -13,7 +13,7 @@ export const movement = pgTable(
   {
     id: uuid('id').defaultRandom().primaryKey(),
     caseId: uuid('case_id').references(() => cases.id), // nulo enquanto não vinculada
-    source: text('source').$type<'djen' | 'domicilio' | 'datajud' | 'portal'>().notNull(),
+    source: text('source').$type<'djen' | 'domicilio' | 'datajud' | 'portal' | 'projuris'>().notNull(),
     externalId: text('external_id'),
     occurredAt: ts('occurred_at').notNull(),
     title: text('title'),

@@ -42,11 +42,14 @@ export async function addInboxItem(input: {
     const [same] = await db.select({ id: inboxItem.id }).from(inboxItem).where(and(eq(inboxItem.source, input.source), eq(inboxItem.externalId, input.externalId))).limit(1);
     if (same) return { ok: true as const, id: same.id, duplicate: true, skipped: true };
   }
-  // várias publicações do mesmo processo ainda não cadastrado ficam num item só (a nova entra na lista de publicações)
+  // várias publicações do mesmo processo ainda não cadastrado ficam num item só (a nova entra na lista de publicações);
+  // vale para DJEN e para as Publicações do Projuris que chegam enquanto o processo ainda espera a Triagem — **de
+  // qualquer uma das duas fontes** (27/11/2026): se o DJEN já tem um item aberto pra esse número e o Projuris traz uma
+  // atualização, ela entra junto, não vira uma segunda linha "possível duplicado" na Triagem
   const pubs = (input.payload as { publications?: Publication[] } | undefined)?.publications;
-  if (input.source === 'djen_term' && pubs?.length) {
+  if ((input.source === 'djen_term' || input.source === 'projuris_api') && pubs?.length) {
     const [open] = await db.select().from(inboxItem)
-      .where(and(eq(inboxItem.caseNumber, number), eq(inboxItem.source, 'djen_term'), inArray(inboxItem.status, ['new', 'in_review', 'possible_duplicate']))).limit(1);
+      .where(and(eq(inboxItem.caseNumber, number), inArray(inboxItem.source, ['djen_term', 'projuris_api']), inArray(inboxItem.status, ['new', 'in_review', 'possible_duplicate']))).limit(1);
     if (open) {
       const cur = (open.payload ?? {}) as { publications?: Publication[] };
       const have = new Set((cur.publications ?? []).map((p) => p.id));

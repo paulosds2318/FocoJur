@@ -108,10 +108,11 @@ const issueRows = (records: CaseRecord[]): IssueRow[] => records.flatMap((r) => 
 export async function previewRecords(records: CaseRecord[], notes: string[] = []) {
   const importable = records.filter(isImportable);
   const numbers = [...new Set(importable.map((r) => r.number))];
+  // um número nunca vira dois processos, mesmo que a planilha traga carteira diferente da já cadastrada
   const existing = new Set<string>();
   for (let i = 0; i < numbers.length; i += 1000) {
-    const rows = await db.select({ n: cases.number, p: cases.portfolio }).from(cases).where(and(inArray(cases.number, numbers.slice(i, i + 1000)), isNull(cases.deletedAt)));
-    rows.forEach((x) => existing.add(`${x.p}:${x.n}`));
+    const rows = await db.select({ n: cases.number }).from(cases).where(and(inArray(cases.number, numbers.slice(i, i + 1000)), isNull(cases.deletedAt)));
+    rows.forEach((x) => existing.add(x.n));
   }
   const { find, findUser, unknown } = await resolvers();
   const noOwner = new Set<string>();
@@ -126,7 +127,7 @@ export async function previewRecords(records: CaseRecord[], notes: string[] = []
       closed: rs.filter((r) => isImportable(r) && isClosed(r)).length, warnings: rs.filter((r) => r.issues.some((i) => i.severity === 'aviso')).length,
     };
   });
-  const toCreate = importable.filter((r) => !existing.has(`${r.portfolio}:${r.number}`));
+  const toCreate = importable.filter((r) => !existing.has(r.number));
   return {
     notes, sheets, total: records.length, importable: importable.length, blocked: records.length - importable.length,
     existing: importable.length - toCreate.length, toCreate: toCreate.length, toCreateClosed: toCreate.filter(isClosed).length,
@@ -146,7 +147,7 @@ export async function writeRecords(records: CaseRecord[], opts: { actorId?: stri
     done++;
     if (done % 25 === 0) await opts.onProgress?.(done, records.length);
     if (!isImportable(r)) { stats.blocked++; continue; }
-    const [exists] = await db.select({ id: cases.id }).from(cases).where(and(eq(cases.number, r.number), eq(cases.portfolio, r.portfolio), isNull(cases.deletedAt))).limit(1);
+    const [exists] = await db.select({ id: cases.id }).from(cases).where(and(eq(cases.number, r.number), isNull(cases.deletedAt))).limit(1);
     if (exists) { stats.existing++; continue; }
 
     const closed = isClosed(r);

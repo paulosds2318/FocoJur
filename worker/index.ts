@@ -33,24 +33,31 @@ async function main() {
 
   // PRD 9.1: frequências dos conectores (o runner registra cada execução e avisa após 3 falhas)
   const conn = (k: keyof typeof CONNECTORS) => async () => JSON.stringify(await runConnector(CONNECTORS[k]));
-  // DJEN: intervalo escolhido pelo admin (1, 6, 12 ou 24 h; padrão 24 h = 6h da manhã). O worker confere a configuração a cada
-  // minuto e reagenda sem precisar reiniciar.
-  const { cronForInterval } = await import('../src/lib/connectors/schedule');
-  const { getDjenIntervalHours } = await import('../src/server/settings');
-  const djenQueue = `${JOBS.connectorPrefix}djen`;
-  let djenHours = await getDjenIntervalHours();
-  await register(djenQueue, cronForInterval(djenHours), conn('djen'));
-  setInterval(async () => {
-    try {
-      const h = await getDjenIntervalHours();
-      if (h === djenHours) return;
-      await boss.schedule(djenQueue, cronForInterval(h), {}, tz);
-      console.log(`[djen] intervalo da consulta automática alterado: ${djenHours} h -> ${h} h`);
-      djenHours = h;
-    } catch (e) {
-      console.error('[djen] não consegui reagendar', e);
-    }
-  }, 60_000);
+  // DJEN pausado por decisão de 27/11/2026: o Projuris virou a fonte (Distribuições = processo novo, Publicações =
+  // atualização). DJEN_ENABLED=false desliga o agendamento sem apagar o conector; "true" (ou a variável ausente) volta
+  // a ligar, sem mexer em código. Ver docs/CLAUDE.md.
+  if ((process.env.DJEN_ENABLED ?? 'true') !== 'false') {
+    // DJEN: intervalo escolhido pelo admin (1, 6, 12 ou 24 h; padrão 24 h = 6h da manhã). O worker confere a configuração a cada
+    // minuto e reagenda sem precisar reiniciar.
+    const { cronForInterval } = await import('../src/lib/connectors/schedule');
+    const { getDjenIntervalHours } = await import('../src/server/settings');
+    const djenQueue = `${JOBS.connectorPrefix}djen`;
+    let djenHours = await getDjenIntervalHours();
+    await register(djenQueue, cronForInterval(djenHours), conn('djen'));
+    setInterval(async () => {
+      try {
+        const h = await getDjenIntervalHours();
+        if (h === djenHours) return;
+        await boss.schedule(djenQueue, cronForInterval(h), {}, tz);
+        console.log(`[djen] intervalo da consulta automática alterado: ${djenHours} h -> ${h} h`);
+        djenHours = h;
+      } catch (e) {
+        console.error('[djen] não consegui reagendar', e);
+      }
+    }, 60_000);
+  } else {
+    console.log('[djen] pausado (DJEN_ENABLED=false): o Projuris é a fonte de processo novo e de atualização por enquanto.');
+  }
   await register(`${JOBS.connectorPrefix}datajud`, '30 6 * * *', conn('datajud')); // diário, 6h30
   await register(`${JOBS.connectorPrefix}domicilio`, '0 */2 * * 1-5', conn('domicilio')); // a cada 2 h em dias úteis
   await register(`${JOBS.connectorPrefix}projuris`, '15 */2 * * 1-5', conn('projuris'));

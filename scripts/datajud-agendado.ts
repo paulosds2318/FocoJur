@@ -41,7 +41,7 @@ async function main() {
       log(`Consultando uma AMOSTRA de ${sample.length} processos reais do TJRS (só leitura)…`);
       const t0 = Date.now();
       const r = await datajud.fetchSince(null, {
-        terms: [], rejectedNames: [], monitoredNumbers: sample, fetchFn: fetch, now: new Date(),
+        terms: [], rejectedNames: [], monitoredNumbers: sample, pendingNumbers: [], fetchFn: fetch, now: new Date(),
         sleep: async (ms) => { log(`  CNJ pediu para esperar; nova tentativa em ${ms / 1000}s`); await new Promise((res) => setTimeout(res, ms)); },
       });
       const movs = r.items.flatMap((i) => expandMovements(i, movementCutoff(new Date()))).length;

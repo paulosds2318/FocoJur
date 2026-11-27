@@ -148,7 +148,7 @@ describe('variações do nome da empresa', () => {
 
   it('o conector ignora publicação cuja única grafia da Foco foi rejeitada e confirma as variações equivalentes', async () => {
     const { djen } = await import('@/lib/connectors/djen');
-    const ctx = { terms: [{ id: 'x', term: 'FOCO ALUGUEL DE CARROS', kind: 'name' as const, document: CNPJ_NOVO }], rejectedNames: ['FOCO ALUGUEL DE VEICULOS LTDA'], monitoredNumbers: [], fetchFn: fetch, now: new Date() };
+    const ctx = { terms: [{ id: 'x', term: 'FOCO ALUGUEL DE CARROS', kind: 'name' as const, document: CNPJ_NOVO }], rejectedNames: ['FOCO ALUGUEL DE VEICULOS LTDA'], monitoredNumbers: [], pendingNumbers: [], fetchFn: fetch, now: new Date() };
     const pub = (nome: string) => ({ id: '1', numero_processo: '5011870-02.2026.8.21.0001', texto: 'x', _termKind: 'name', _term: 'FOCO ALUGUEL DE CARROS', destinatarios: [{ nome }] });
     expect(djen.toInbox!(pub('FOCO ALUGUEL DE VEICULOS LTDA'), ctx)).toBeNull(); // homônimo já rejeitado
     expect(djen.toInbox!(pub('FOCO ALUGUEL DE CARROS S.A.'), ctx)?.parsed?.obtainedBy).not.toMatch(/Conferir parte/); // grafia equivalente

@@ -9,6 +9,8 @@ export type InboxItemInput = {
 
 export type MovementInput = {
   source: MovementSource; externalId: string; caseNumber: string; occurredAt: Date; title?: string | null; rawText: string; matchedTermId?: string | null;
+  /** backfill da primeira captura: entra como histórico lido, sem virar alerta (ex.: publicação antiga do Projuris, já conhecida) */
+  alreadyRead?: { by: string | null };
 };
 
 /** Todo conector implementa a mesma interface e roda como job do pg-boss (PRD 9.1). */
@@ -26,6 +28,7 @@ export type ConnectorContext = {
   terms: { id: string; term: string; kind: 'cnpj' | 'name' | 'oab' | 'lawyer'; document: string | null }[];
   rejectedNames: string[]; // grafias que o admin marcou como NÃO sendo a empresa (homônimos)
   monitoredNumbers: string[]; // números (só dígitos) com monitoring = true
+  pendingNumbers: string[]; // números (só dígitos) ainda esperando a Triagem (Caixa de entrada), sem processo confirmado
   fetchFn: typeof fetch;
   sleep?: (ms: number) => Promise<void>; // espera entre tentativas (testes passam uma versão instantânea)
   now: Date;

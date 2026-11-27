@@ -1,3 +1,4 @@
+import { sql } from 'drizzle-orm';
 import {
   boolean, date, index, numeric, pgTable, text, timestamp, uniqueIndex, uuid,
 } from 'drizzle-orm/pg-core';
@@ -44,7 +45,9 @@ export const cases = pgTable(
     ...stamps,
   },
   (t) => [
-    uniqueIndex('case_number_portfolio_uq').on(t.number, t.portfolio),
+    // um mesmo número (processo de verdade) nunca pode virar duas linhas, nem por carteiras diferentes; parcial
+    // (só entre os não excluídos) para o número poder ser reaproveitado depois de uma exclusão lógica (regra 7)
+    uniqueIndex('case_number_uq').on(t.number).where(sql`${t.deletedAt} is null`),
     index('case_number_idx').on(t.number),
     index('case_status_idx').on(t.statusId),
     index('case_owner_idx').on(t.ownerId),

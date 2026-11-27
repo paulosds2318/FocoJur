@@ -14,7 +14,7 @@ describe('busca do DJEN pelo número do processo', () => {
       const isNumber = String(u).includes('numeroProcesso=');
       return new Response(JSON.stringify({ items: isNumber ? [{ id: '99', numero_processo: '5011870-02.2026.8.21.0001', texto: 'x', tipoComunicacao: 'Intimação', data_disponibilizacao: '2026-11-23' }] : [] }), { status: 200 });
     }) as unknown as typeof fetch;
-    const ctx = { terms: [], rejectedNames: [], monitoredNumbers: ['50118700220268210001', '01005846020195010062'], fetchFn, now: NOW } as unknown as ConnectorContext;
+    const ctx = { terms: [], rejectedNames: [], monitoredNumbers: ['50118700220268210001', '01005846020195010062'], pendingNumbers: [], fetchFn, now: NOW } as unknown as ConnectorContext;
     const r = await djen.fetchSince(null, ctx);
     const porNumero = urls.filter((u) => u.includes('numeroProcesso='));
     expect(porNumero).toHaveLength(2);
@@ -33,7 +33,7 @@ describe('busca do DJEN pelo número do processo', () => {
   it('um erro 429 interrompe as consultas por número e fica registrado (sem perder o que veio)', async () => {
     let calls = 0;
     const fetchFn = (async () => { calls++; return new Response('', { status: 429 }); }) as unknown as typeof fetch;
-    const ctx = { terms: [], rejectedNames: [], monitoredNumbers: ['1', '2', '3'].map((n) => n.padStart(20, '0')), fetchFn, now: NOW } as unknown as ConnectorContext;
+    const ctx = { terms: [], rejectedNames: [], monitoredNumbers: ['1', '2', '3'].map((n) => n.padStart(20, '0')), pendingNumbers: [], fetchFn, now: NOW } as unknown as ConnectorContext;
     const r = await djen.fetchSince(null, ctx);
     expect(calls).toBe(1);
     expect(r.errors?.[0]).toMatch(/429/);

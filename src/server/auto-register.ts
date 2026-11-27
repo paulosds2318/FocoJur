@@ -26,7 +26,8 @@ export async function registerOngoingCase(input: InboxItemInput, actorId: string
   // só chega aqui com dúvida de parte quando a conversão é feita de propósito (ex.: depois de confirmada na Triagem); fica o aviso na ficha
   const doubt = parsed.obtainedBy?.startsWith('Conferir parte') ? parsed.obtainedBy : null;
 
-  let [c] = await db.select({ id: cases.id }).from(cases).where(and(eq(cases.number, number), eq(cases.portfolio, portfolio), isNull(cases.deletedAt))).limit(1);
+  // um número nunca vira dois processos, mesmo que a carteira detectada agora seja diferente da já cadastrada
+  let [c] = await db.select({ id: cases.id }).from(cases).where(and(eq(cases.number, number), isNull(cases.deletedAt))).limit(1);
   let createdCase = false;
   if (!c) {
     c = await db.transaction(async (tx) => {

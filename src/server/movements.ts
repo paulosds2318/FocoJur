@@ -12,7 +12,7 @@ import { canonicalOption, optionLines } from '@/lib/ai/options';
 import { getLookups } from './lookups';
 import { createTask, getHolidaySet, internalDateFor, statesWithLocalCalendar, type HolidayCtx } from './tasks';
 
-export type MovementSource = 'djen' | 'domicilio' | 'datajud' | 'portal';
+export type MovementSource = 'djen' | 'domicilio' | 'datajud' | 'portal' | 'projuris';
 
 export const DISCARD_REASONS = ['Não é da Foco (homônimo)', 'Já tratado', 'Sem providência', 'Duplicado'] as const;
 
@@ -23,8 +23,11 @@ export async function ingestMovement(i: {
   /** publicação que a advogada já viu (ex.: a que trouxe o processo à Triagem): entra como lida, sem gerar alerta */
   alreadyRead?: { by: string | null };
 }) {
-  const [dup] = await db.select({ id: movement.id }).from(movement).where(and(eq(movement.source, i.source), eq(movement.externalId, i.externalId))).limit(1);
-  if (dup) return { id: dup.id, created: false, linked: false };
+  // a mesma publicação pode bater em mais de um termo monitorado na mesma busca (ex.: nome da Foco e nome do advogado);
+  // a segunda vez que aparece não é uma nova movimentação, mas já está "tratada" se a primeira já tinha achado o processo
+  // — senão a Triagem ganhava um item sobrando sem necessidade (RF-104/27-11-2026)
+  const [dup] = await db.select({ id: movement.id, caseId: movement.caseId }).from(movement).where(and(eq(movement.source, i.source), eq(movement.externalId, i.externalId))).limit(1);
+  if (dup) return { id: dup.id, created: false, linked: !!dup.caseId };
   let caseId: string | null = null;
   if (i.caseNumber) {
     const n = normalizeCaseNumber(i.caseNumber);

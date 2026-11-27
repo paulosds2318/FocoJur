@@ -1,0 +1,56 @@
+name: Rotinas agendadas
+
+# O plano gratuito da Vercel só aceita 2 crons por dia; aqui o GitHub Actions chama as rotas /api/cron/* nos horários certos (UTC).
+# Segredos do repositório: APP_URL (ex.: https://focojur.vercel.app) e CRON_SECRET (o mesmo da Vercel).
+on:
+  schedule:
+    - cron: '0 10 * * 1-5'   # digest: alerta de prazos, 7h Brasília
+    - cron: '30 16 * * 1-5'  # ptax, 13h30
+    - cron: '0 9 * * *'      # model-catalog, 6h
+    - cron: '*/15 * * * *'   # budget-check
+    - cron: '0 * * * *'      # djen, de hora em hora (a rota respeita o intervalo da tela de Monitoramento)
+    - cron: '30 9 * * *'     # datajud, 6h30
+    - cron: '0 */2 * * 1-5'  # domicilio
+    - cron: '15 */2 * * 1-5' # projuris
+  workflow_dispatch:
+    inputs:
+      job:
+        description: 'Rotina para rodar agora (digest, ptax, model-catalog, budget-check, djen, datajud, domicilio, projuris)'
+        required: true
+
+permissions: {}
+
+jobs:
+  chama:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Escolhe a rotina
+        id: job
+        env:
+          AGENDA: ${{ github.event.schedule }}
+          MANUAL: ${{ github.event.inputs.job }}
+        run: |
+          if [ -n "$MANUAL" ]; then echo "nome=$MANUAL" >> "$GITHUB_OUTPUT"; exit 0; fi
+          case "$AGENDA" in
+            '0 10 * * 1-5') n=digest ;;
+            '30 16 * * 1-5') n=ptax ;;
+            '0 9 * * *') n=model-catalog ;;
+            '*/15 * * * *') n=budget-check ;;
+            '0 * * * *') n=djen ;;
+            '30 9 * * *') n=datajud ;;
+            '0 */2 * * 1-5') n=domicilio ;;
+            '15 */2 * * 1-5') n=projuris ;;
+            *) echo "agenda desconhecida: $AGENDA"; exit 1 ;;
+          esac
+          echo "nome=$n" >> "$GITHUB_OUTPUT"
+      - name: Chama a rotina
+        env:
+          APP_URL: ${{ secrets.APP_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          NOME: ${{ steps.job.outputs.nome }}
+        run: |
+          # o repositório é público: nunca imprimir o corpo da resposta (só o código HTTP)
+          code=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 330 -H "Authorization: Bearer $CRON_SECRET" "$APP_URL/api/cron/$NOME")
+          echo "[$NOME] HTTP $code"
+          [ "$code" = "200" ]

@@ -9,3 +9,8 @@ test-results/
 *.tsbuildinfo
 playwright-report/
 .DS_Store
+
+.vercel
+.env.local
+
+.env*

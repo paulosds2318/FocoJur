@@ -1,0 +1,7 @@
+/storage
+/logs
+/test-results
+/_limpa_teste.mjs
+/.env
+/.env.*
+!/.env.example
